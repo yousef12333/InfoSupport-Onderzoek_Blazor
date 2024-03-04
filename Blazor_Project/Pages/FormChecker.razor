@@ -1,0 +1,29 @@
+﻿@page "/passwordchecker"
+@using Microsoft.AspNetCore.Components.Forms
+@using Blazor_Project.Services
+
+<h1 class="pass-title">Password strength</h1>
+<div class="pass-input-wrapper">
+    <label class="pass-label">
+        Supports only combination of
+        <span @class="-invalid: !IsPasswordValid ? 'pass-invalid' : ''">digits/letters/symbols</span>
+    </label>
+    <InputText class="pass-input" @bind-Value="inputChecker" placeholder="Enter your password here" />
+
+    <div class="pass-marker"
+         @class="-easy: IsPasswordEasy, -medium: IsPasswordMedium, -strong: IsPasswordStrong, -invalid: !IsPasswordValid, -empty: string.IsNullOrEmpty(inputChecker)">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+</div>
+
+@code {
+    private string inputChecker = "";
+    private PasswordStrengthService passwordCheck = new PasswordStrengthService();
+
+    private bool IsPasswordValid => passwordCheck.IsEasyValidationPassed(inputChecker);
+    private bool IsPasswordEasy => passwordCheck.IsEasyValidationPassed(inputChecker);
+    private bool IsPasswordMedium => passwordCheck.IsMediumValidationPassed(inputChecker);
+    private bool IsPasswordStrong => passwordCheck.IsStrongValidationPassed(inputChecker);
+}
