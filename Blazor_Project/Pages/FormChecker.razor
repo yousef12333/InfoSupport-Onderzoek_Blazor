@@ -3,85 +3,22 @@
 @using Blazor_Project.Services
 @inject PasswordStrengthService passwordCheck
 @inject ILogger<FormChecker> logger;
-
-<style>
-    body{
-        margin: 0;
-        font-family: "Roboto", sans-serif;
-        font-weight: 400;
-        font-style: normal;
-        background-color: #003767;
-    }
-
-    .pass-input-wrapper{
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        width: 100%;
-        height: 100%;
-        margin-top: 15rem;
-    }
-    .pass-title{
-        margin: 0 0 24px;
-        font-weight: 700;
-        color: aliceblue;
-    }
-    .pass-label{
-        color: aliceblue;
-        text-align: center;
-    }
-    .pass-input{
-        margin: 8px 0;
-        margin-bottom: -5px;
-        padding: 4px 8px;
-        font-size: 24px;
-    }
-    .spanColors {
-        padding-right: 48px;
-        padding-left: 48px;
-        margin-left: 4px;
-        margin-right: 4px;
-        border-radius: 4px;
-        transition: all 0.4s ease-out;
-        display: inline-block;
-        height: 4px;
-    }
-
-    .spanColors.invalid {
-        background-color: grey;
-        outline: none;
-    }
-
-    .spanColors.strong {
-        background-color: green;
-    }
-
-    .spanColors.medium {
-        background-color: yellow;
-    }
-
-    .spanColors.easy {
-        background-color: red;
-    }
-</style>
-
+<link rel="stylesheet" href="css/FormChecker.css">
 
 <div class="pass-input-wrapper">
-    <h1 class="pass-title">Password strength 🦾</h1>
+    <h1 class="pass-title">Password strength</h1>
     <label class="pass-label">
         Supports only a combination of
+        <br>
         <span @class="-invalid: !IsPasswordValid ? 'pass-invalid' : ''">digits/letters/symbols</span>
     </label>
-    <InputText class="pass-input" @bind-Value="inputChecker" placeholder="Enter your password here" />
+    <InputText class="pass-input" @bind-Value="inputChecker" onchange="CheckPassword" placeholder="Enter your password here" />
 
     <div class="pass-marker">
         <span class="@SpanOneClass" id="spanOne"></span>
         <span class="@SpanTwoClass" id="spanTwo"></span>
         <span class="@SpanThreeClass" id="spanThree"></span>
     </div>
-
-    <button @onclick="CheckPassword">Check Password</button>
 </div>
 
 @code {
@@ -90,7 +27,6 @@
     private bool IsPasswordEasy => passwordCheck.IsEasyValidationPassed(inputChecker);
     private bool IsPasswordMedium => passwordCheck.IsMediumValidationPassed(inputChecker);
     private bool IsPasswordStrong => passwordCheck.IsStrongValidationPassed(inputChecker);
-
 
     private string SpanOneClass
     {
@@ -184,27 +120,10 @@
             }
         }
     }
-    private void CheckPassword()
+
+    private void CheckPassword(ChangeEventArgs e)
     {
-        if (string.IsNullOrEmpty(inputChecker) || (!IsPasswordEasy && !IsPasswordMedium && !IsPasswordStrong))
-        {
-            logger.LogInformation("Password is empty or does not meet the criteria.");
-        }
-        else if (inputChecker.Length < 8)
-        {
-            logger.LogInformation("Password is invalid. It should be at least 8 characters long.");
-        }
-        else if (IsPasswordEasy)
-        {
-            logger.LogInformation("Password is easy.");
-        }
-        else if (IsPasswordMedium)
-        {
-            logger.LogInformation("Password is medium.");
-        }
-        else if (IsPasswordStrong)
-        {
-            logger.LogInformation("Password is strong.");
-        }
+        // You can perform additional logic here if needed
+        // Currently, the styling is already being updated based on IsPasswordValid
     }
 }
