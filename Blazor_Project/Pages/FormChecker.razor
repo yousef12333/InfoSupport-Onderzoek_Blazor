@@ -9,10 +9,10 @@
     <h1 class="pass-title">Password strength</h1>
     <label class="pass-label">
         Supports only a combination of
-        <br>
+        <br />
         <span @class="-invalid: !IsPasswordValid ? 'pass-invalid' : ''">digits/letters/symbols</span>
     </label>
-    <InputText class="pass-input" @bind-Value="inputChecker" onchange="CheckPassword" placeholder="Enter your password here" />
+    <InputText class="pass-input" @bind-Value="inputChecker" @oninput="CheckPassword" placeholder="Enter your password here" />
 
     <div class="pass-marker">
         <span class="@SpanOneClass" id="spanOne"></span>
@@ -23,6 +23,7 @@
 
 @code {
     private string inputChecker = "";
+    private string displayedPasswordStrength = "";
     private bool IsPasswordValid => passwordCheck.IsEasyValidationPassed(inputChecker);
     private bool IsPasswordEasy => passwordCheck.IsEasyValidationPassed(inputChecker);
     private bool IsPasswordMedium => passwordCheck.IsMediumValidationPassed(inputChecker);
@@ -123,7 +124,12 @@
 
     private void CheckPassword(ChangeEventArgs e)
     {
-        // You can perform additional logic here if needed
-        // Currently, the styling is already being updated based on IsPasswordValid
+        inputChecker = e.Value?.ToString();
+        StateHasChanged();
+    }
+    private void UpdateDisplayedPasswordStrength()
+    {
+        displayedPasswordStrength = IsPasswordValid ? "Valid" : "Invalid";
+        StateHasChanged();
     }
 }

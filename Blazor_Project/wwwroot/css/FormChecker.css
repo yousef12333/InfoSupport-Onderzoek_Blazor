@@ -1,18 +1,4 @@
-﻿@keyframes breathing {
-    0% {
-        background-color: blue;
-    }
-
-    50% {
-        background-color: #003767;
-    }
-
-    100% {
-        background-color: blue;
-    }
-}
-
-body {
+﻿body {
     margin: 0;
     font-family: "Roboto", sans-serif;
     font-weight: 400;
@@ -85,7 +71,6 @@ body {
     }
 
 .pass-invalid {
-    animation: breathing 2.4s infinite;
     color: aliceblue;
     text-align: center;
 }
