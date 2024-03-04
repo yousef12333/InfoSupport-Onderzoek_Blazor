@@ -5,33 +5,70 @@
 @inject ILogger<FormChecker> logger;
 
 <style>
-    .spanColors {
-        padding-right: 120px;
-        margin-right: 10px;
-        border-radius: 4px;
-        transition: all 0.4s ease-out;
+    body{
+        margin: 0;
+        font-family: "Roboto", sans-serif;
+        font-weight: 400;
+        font-style: normal;
+        background-color: #003767;
     }
 
-        .spanColors.invalid {
-            background-color: grey;
-            outline: none;
-        }
+    .pass-input-wrapper{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        margin-top: 15rem;
+    }
+    .pass-title{
+        margin: 0 0 24px;
+        font-weight: 700;
+        color: aliceblue;
+    }
+    .pass-label{
+        color: aliceblue;
+        text-align: center;
+    }
+    .pass-input{
+        margin: 8px 0;
+        margin-bottom: -5px;
+        padding: 4px 8px;
+        font-size: 24px;
+    }
+    .spanColors {
+        padding-right: 48px;
+        padding-left: 48px;
+        margin-left: 4px;
+        margin-right: 4px;
+        border-radius: 4px;
+        transition: all 0.4s ease-out;
+        display: inline-block;
+        height: 4px;
+    }
 
-        .spanColors.strong {
-            background-color: green;
-        }
+    .spanColors.invalid {
+        background-color: grey;
+        outline: none;
+    }
 
-        .spanColors.medium {
-            background-color: yellow;
-        }
+    .spanColors.strong {
+        background-color: green;
+    }
 
-        .spanColors.easy {
-            background-color: red;
-        }
+    .spanColors.medium {
+        background-color: yellow;
+    }
+
+    .spanColors.easy {
+        background-color: red;
+    }
 </style>
 
-<h1 class="pass-title">Password strength</h1>
+
 <div class="pass-input-wrapper">
+    <h1 class="pass-title">Password strength 🦾</h1>
     <label class="pass-label">
         Supports only a combination of
         <span @class="-invalid: !IsPasswordValid ? 'pass-invalid' : ''">digits/letters/symbols</span>
