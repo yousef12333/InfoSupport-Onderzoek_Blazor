@@ -15,9 +15,10 @@
     <InputText class="pass-input" @bind-Value="inputChecker" @oninput="CheckPassword" placeholder="Enter your password here" />
 
     <div class="pass-marker">
-        <span class="@SpanOneClass" id="spanOne"></span>
-        <span class="@SpanTwoClass" id="spanTwo"></span>
-        <span class="@SpanThreeClass" id="spanThree"></span>
+        @for (int i = 1; i <= 3; i++)
+        {
+            <span class="@GetSpanClass(i)"></span>
+        }
     </div>
 </div>
 
@@ -29,107 +30,33 @@
     private bool IsPasswordMedium => passwordCheck.IsMediumValidationPassed(inputChecker);
     private bool IsPasswordStrong => passwordCheck.IsStrongValidationPassed(inputChecker);
 
-    private string SpanOneClass
+    private string GetSpanClass(int index)
     {
-        get
+        if (string.IsNullOrEmpty(inputChecker))
         {
-            if (string.IsNullOrEmpty(inputChecker))
-            {
-                return "spanColors invalid";
-            }
-            else if (inputChecker.Length < 8)
-            {
-                return "spanColors easy";
-            }
-            else if (IsPasswordEasy)
-            {
-                return "spanColors easy";
-            }
-            else if (IsPasswordMedium)
-            {
-                return "spanColors medium";
-            }
-            else if (IsPasswordStrong)
-            {
-                return "spanColors strong";
-            }
-            else
-            {
-                return "spanColors invalid";
-            }
+            return "spanColors invalid";
         }
-    }
-
-    private string SpanTwoClass
-    {
-        get
+        else if (inputChecker.Length < 8)
         {
-            if (string.IsNullOrEmpty(inputChecker))
-            {
-                return "spanColors invalid";
-            }
-            else if (inputChecker.Length < 8)
-            {
-                return "spanColors easy";
-            }
-            else if (IsPasswordEasy)
-            {
-                return "spanColors invalid";
-            }
-            else if (IsPasswordMedium)
-            {
-                return "spanColors medium";
-            }
-            else if (IsPasswordStrong)
-            {
-                return "spanColors strong";
-            }
-            else
-            {
-                return "spanColors invalid";
-            }
+            return "spanColors easy";
         }
-    }
-
-    private string SpanThreeClass
-    {
-        get
+        return index switch
         {
-            if (string.IsNullOrEmpty(inputChecker))
-            {
-                return "spanColors invalid";
-            }
-            else if (inputChecker.Length < 8)
-            {
-                return "spanColors easy";
-            }
-            else if (IsPasswordEasy)
-            {
-                return "spanColors invalid";
-            }
-            else if (IsPasswordMedium)
-            {
-                return "spanColors invalid";
-            }
-            else if (IsPasswordStrong)
-            {
-                return "spanColors strong";
-            }
-            else
-            {
-                return "spanColors invalid";
-            }
-        }
+            1 => IsPasswordEasy ? "spanColors easy" : (IsPasswordMedium ? "spanColors medium" : (IsPasswordStrong ? "spanColors strong" : "spanColors invalid")),
+            2 => IsPasswordMedium ? "spanColors medium" : (IsPasswordStrong ? "spanColors strong" : "spanColors invalid"),
+            3 => IsPasswordStrong ? "spanColors strong" : "spanColors invalid",
+            _ => "spanColors invalid",
+        };
     }
 
     private void CheckPassword(ChangeEventArgs e)
     {
         inputChecker = e.Value?.ToString();
-        StateHasChanged();
+        UpdateDisplayedPasswordStrength();
     }
+
     private void UpdateDisplayedPasswordStrength()
     {
         displayedPasswordStrength = IsPasswordValid ? "Valid" : "Invalid";
-        StateHasChanged();
     }
 }
