@@ -6,11 +6,16 @@ namespace Tests
 {
     public class UnitTests : TestContext
     {
+        private readonly PasswordStrengthService service;
+
+        public UnitTests()
+        {
+            service = new PasswordStrengthService();
+        }
         [Fact]
         public void DestructionTestOfPasswordChecker()
         {
-            var service = new PasswordStrengthService();
-            var result = service.IsStrongValidationPassed(null); 
+            var result = service.IsValidationPassed(null, PasswordStrength.Strong);
             Assert.NotNull(service);
             Assert.False(result);
         }
@@ -22,8 +27,7 @@ namespace Tests
         [InlineData("!@#abcDEF123")]
         public void FuzzTestOfPasswordChecker(string input)
         {
-            var service = new PasswordStrengthService();
-            var result = service.IsStrongValidationPassed(input);
+            var result = service.IsValidationPassed(input, PasswordStrength.Strong);
             Assert.True(result);
         }
 
@@ -38,8 +42,7 @@ namespace Tests
         [InlineData("a1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGHa1!ABCDEFGH9@#aBCDEFGH9*()ZER£%¨*¨25255SDFSDGH")]
         public void BoundaryValueTest(string input)
         {
-            var service = new PasswordStrengthService();
-            var result = service.IsStrongValidationPassed(input);
+            var result = service.IsValidationPassed(input, PasswordStrength.Strong);
             Assert.True(result);
         }
 
@@ -57,10 +60,9 @@ namespace Tests
         [InlineData("mixOfCharacters123!@#", true, true, true)]
         public void DataDrivenTestOfPasswordChecker(string input, bool expectedEasy, bool expectedMedium, bool expectedStrong)
         {
-            var service = new PasswordStrengthService();
-            var isEasy = service.IsEasyValidationPassed(input);
-            var isMedium = service.IsMediumValidationPassed(input);
-            var isStrong = service.IsStrongValidationPassed(input);
+            var isEasy = service.IsValidationPassed(input, PasswordStrength.Easy);
+            var isMedium = service.IsValidationPassed(input, PasswordStrength.Medium);
+            var isStrong = service.IsValidationPassed(input, PasswordStrength.Strong);
 
             Assert.Equal(expectedEasy, isEasy);
             Assert.Equal(expectedMedium, isMedium);
@@ -73,9 +75,7 @@ namespace Tests
         [InlineData("abcdefgh123", false)]
         public void IsEasyValidationPassed_ReturnsCorrectResult(string input, bool expectedResult)
         {
-            var service = new PasswordStrengthService();
-            var result = service.IsEasyValidationPassed(input);
-
+            var result = service.IsValidationPassed(input, PasswordStrength.Easy);
             Assert.Equal(expectedResult, result);
         }
         [Theory]
@@ -85,9 +85,7 @@ namespace Tests
         [InlineData("123456789", false)]
         public void IsMediumValidationPassed_ReturnsCorrectResult(string input, bool expectedResult)
         {
-            var service = new PasswordStrengthService();
-            var result = service.IsMediumValidationPassed(input);
-
+            var result = service.IsValidationPassed(input, PasswordStrength.Medium);
             Assert.Equal(expectedResult, result);
         }
         [Theory]
@@ -97,9 +95,8 @@ namespace Tests
         [InlineData("abcdefgh123!A", true)]
         public void IsStrongValidationPassed_ReturnsCorrectResult(string input, bool expectedResult)
         {
-            var service = new PasswordStrengthService();
-            var result = service.IsStrongValidationPassed(input);
-
+            
+            var result = service.IsValidationPassed(input, PasswordStrength.Strong);
             Assert.Equal(expectedResult, result);
         }
     }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+/*using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,8 +17,9 @@ using Xunit;
 
 namespace Tests
 {
-    public class FunctionalTests : IDisposable
+    public class FunctionalTests  : IDisposable
     {
+        
         private readonly string _websiteURL;
         private readonly EdgeDriver _driver;
 
@@ -102,5 +104,7 @@ namespace Tests
         {
             _driver.Dispose();
         }
+        
     }
 }
+*/

@@ -25,13 +25,16 @@
 @code {
     private string inputChecker = "";
     private string displayedPasswordStrength = "";
-    private bool IsPasswordValid => passwordCheck.IsEasyValidationPassed(inputChecker);
-    private bool IsPasswordEasy => passwordCheck.IsEasyValidationPassed(inputChecker);
-    private bool IsPasswordMedium => passwordCheck.IsMediumValidationPassed(inputChecker);
-    private bool IsPasswordStrong => passwordCheck.IsStrongValidationPassed(inputChecker);
-    
- 
-    public string GetSpanClass(int index)
+    private bool IsPasswordValid => passwordCheck.IsValidationPassed(inputChecker, PasswordStrength.Easy);
+    private bool IsPasswordEasy => passwordCheck.IsValidationPassed(inputChecker, PasswordStrength.Easy);
+    private bool IsPasswordMedium => passwordCheck.IsValidationPassed(inputChecker, PasswordStrength.Medium);
+    private bool IsPasswordStrong => passwordCheck.IsValidationPassed(inputChecker, PasswordStrength.Strong);
+
+
+    private PasswordStrength GetPasswordStrength() =>
+    inputChecker.Length < 8 ? PasswordStrength.Easy: IsPasswordEasy ? PasswordStrength.Easy : IsPasswordMedium ? PasswordStrength.Medium : IsPasswordStrong ? PasswordStrength.Strong : PasswordStrength.Invalid;
+
+    private string GetSpanClass(int index)
     {
         if (string.IsNullOrEmpty(inputChecker))
         {
@@ -52,8 +55,15 @@
 
     private void CheckPassword(ChangeEventArgs e)
     {
-        inputChecker = e.Value?.ToString();
-        UpdateDisplayedPasswordStrength();
+        try
+        {
+            inputChecker = e.Value?.ToString();
+            UpdateDisplayedPasswordStrength();
+        }
+        catch (Exception ex)
+        {
+            displayedPasswordStrength = $"Resource Error: {ex.Message}";
+        }
     }
 
     private void UpdateDisplayedPasswordStrength()
