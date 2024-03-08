@@ -31,7 +31,7 @@
     private bool IsPasswordStrong => passwordCheck.IsStrongValidationPassed(inputChecker);
     
  
-    private string GetSpanClass(int index)
+    public string GetSpanClass(int index)
     {
         if (string.IsNullOrEmpty(inputChecker))
         {
