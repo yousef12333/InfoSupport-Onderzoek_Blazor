@@ -36,22 +36,17 @@
 
     private string GetSpanClass(int index)
     {
-        if (string.IsNullOrEmpty(inputChecker))
-        {
-            return "spanColors invalid";
-        }
-        else if (inputChecker.Length < 8)
-        {
-            return "spanColors easy";
-        }
-        return index switch
-        {
-            1 => IsPasswordEasy ? "spanColors easy" : (IsPasswordMedium ? "spanColors medium" : (IsPasswordStrong ? "spanColors strong" : "spanColors invalid")),
-            2 => IsPasswordMedium ? "spanColors medium" : (IsPasswordStrong ? "spanColors strong" : "spanColors invalid"),
-            3 => IsPasswordStrong ? "spanColors strong" : "spanColors invalid",
-            _ => "spanColors invalid",
-        };
+        return string.IsNullOrEmpty(inputChecker) ? "spanColors invalid" :
+               inputChecker.Length < 8 ? "spanColors easy" :
+               index switch
+               {
+                   1 => IsPasswordEasy ? "spanColors easy" : (IsPasswordMedium ? "spanColors medium" : (IsPasswordStrong ? "spanColors strong" : "spanColors invalid")),
+                   2 => IsPasswordMedium ? "spanColors medium" : (IsPasswordStrong ? "spanColors strong" : "spanColors invalid"),
+                   3 => IsPasswordStrong ? "spanColors strong" : "spanColors invalid",
+                   _ => "spanColors invalid"
+               };
     }
+
 
     private void CheckPassword(ChangeEventArgs e)
     {
