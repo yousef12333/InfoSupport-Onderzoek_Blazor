@@ -1,4 +1,5 @@
 ﻿using System;
+using Blazor_Project;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -33,7 +34,6 @@ namespace Tests
             var passwordStrengthService = Services.GetRequiredService<PasswordStrengthService>();
             Assert.NotNull(passwordStrengthService);
         }
-
         [Fact]
         public void PasswordStrengthCssClassesAreApplied()
         {

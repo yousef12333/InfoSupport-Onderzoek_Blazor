@@ -29,7 +29,8 @@
     private bool IsPasswordEasy => passwordCheck.IsEasyValidationPassed(inputChecker);
     private bool IsPasswordMedium => passwordCheck.IsMediumValidationPassed(inputChecker);
     private bool IsPasswordStrong => passwordCheck.IsStrongValidationPassed(inputChecker);
-
+    
+ 
     private string GetSpanClass(int index)
     {
         if (string.IsNullOrEmpty(inputChecker))
