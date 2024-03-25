@@ -1,0 +1,114 @@
+﻿@page "/reactive-forms"
+@using System.ComponentModel.DataAnnotations
+@using System.Text.Json
+
+<h1>Model-based Form Example:</h1>
+<h2>Hello, @formModel.FirstName, your gender is @genderLabel</h2>
+
+<EditForm Model="@formModel" OnSubmit="Submit">
+    <p>
+        <label id="firstName" style="color: @(string.IsNullOrWhiteSpace(formModel.FirstName) ? "red" : "inherit");">First Name:</label>
+        <InputText @bind-Value="formModel.FirstName" />
+        @if (string.IsNullOrWhiteSpace(formModel.FirstName))
+        {
+            <span style="color: red;">This field is required</span>
+        }
+    </p>
+    <p>
+        <label>Password:</label>
+        <InputText type="password" @bind-Value="formModel.Password" />
+    </p>
+
+    <p>
+        Choose gender:
+        @foreach (var genderOption in genderOptions)
+        {
+            <label>
+                <input type="radio" name="gender" @onclick="() => SetGender(genderOption.GenderType)" checked="@IsSelectedGender(genderOption.GenderType)" />
+                @genderOption.Label
+            </label>
+        }
+        <ValidationMessage For="@(() => formModel.Gender)" />
+    </p>
+    <p>
+        <input type="checkbox" @bind="formModel.ShouldUseCity" />
+    </p>
+
+    @if (formModel.ShouldUseCity)
+    {
+        <select @bind="formModel.City">
+            @foreach (var city in cities)
+            {
+                <option value="@city.Id">@city.Name</option>
+            }
+        </select>
+    }
+
+    <p>
+        <button type="submit">Submit</button>
+    </p>
+</EditForm>
+
+@code {
+
+    private class FormData
+    {
+        public string FirstName { get; set; }
+        public string Password { get; set; }
+        public string Gender { get; set; }
+        public bool ShouldUseCity { get; set; }
+        public int City { get; set; }
+    }
+
+    private FormData formModel = new FormData();
+    private string genderLabel;
+
+    private readonly List<Gender> genderOptions = new List<Gender>
+    {
+        new Gender { GenderType = "m", Label = "male" },
+        new Gender { GenderType = "f", Label = "female" }
+    };
+    private bool IsSelectedGender(string genderType) => formModel.Gender == genderType;
+
+    private void SetGender(string genderType)
+    {
+        formModel.Gender = genderType;
+        genderLabel = genderOptions.FirstOrDefault(g => g.GenderType == formModel.Gender)?.Label;
+    }
+
+    private async Task Submit()
+    {
+        var formData = new Dictionary<string, string>
+        {
+            { "firstName", formModel.FirstName },
+            { "password", formModel.Password },
+            { "shouldUseCity", formModel.ShouldUseCity.ToString() },
+            { "gender", formModel.Gender },
+            { "label", genderLabel},
+            { "city", formModel.ShouldUseCity ? formModel.City.ToString() : "" }
+        };
+
+        var json = JsonSerializer.Serialize(formData, new JsonSerializerOptions { WriteIndented = true });
+        await JSRuntime.InvokeVoidAsync("alert", json);
+    }
+
+    [Inject] private IJSRuntime JSRuntime { get; set; }
+    private IEnumerable<City> cities = new List<City>
+    {
+        new City { Id = 1, Name = "Kharkiv" },
+        new City { Id = 2, Name = "Kiev" },
+        new City { Id = 3, Name = "Lviv" }
+    };
+
+    private class City
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    private class Gender
+    {
+        public string GenderType { get; set; }
+        public string Label { get; set; }
+    }
+}
