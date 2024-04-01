@@ -1,19 +1,9 @@
-﻿
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Blazor_Project.Pages;
-using Blazor_Project.Services;
-using Bunit;
+﻿using Blazor_Project;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel;
+using Newtonsoft.Json;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Edge;
-using OpenQA.Selenium.Remote;
 using OpenQA.Selenium.Support.UI;
-using Xunit;
 
 namespace Tests
 {
@@ -30,6 +20,7 @@ namespace Tests
             _driver.Manage().Window.Maximize();
             _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(30);
         }
+        
         [Fact, Trait("Category", "FunctionalTest")]
         public void NavigateToPasswordChecker()
         {
@@ -99,7 +90,88 @@ namespace Tests
 
             Assert.Equal(expectedClass, classAfterTyping);
         }
+        
+        //reactive- & template-driven forms
+        [Fact, Trait("Category", "FunctionalTest")]
+        public void NavigateToReactiveForms()
+        {
+            _driver.Navigate().GoToUrl(_websiteURL + "reactive-forms");
+        }
 
+        [Fact, Trait("Category", "UITest")]
+        public void ReactiveFormsPageDisplaysCorrectly()
+        {
+            _driver.Navigate().GoToUrl(_websiteURL + "reactive-forms");
+
+            var pageTitle = _driver.Title;
+            var firstNameLabel = _driver.FindElement(By.CssSelector("#firstName")).Text;
+
+            Assert.Equal("Blazor_Project", pageTitle);
+            Assert.Equal("First Name:", firstNameLabel);
+        }
+        
+        [Fact, Trait("Category", "UITest")]
+        public void SubmitReactiveFormWithValidData()
+        {
+            _driver.Navigate().GoToUrl(_websiteURL + "reactive-forms");
+
+            var inputFirstName = _driver.FindElement(By.CssSelector("input.valid"));
+            inputFirstName.SendKeys("Youssef");
+
+            var inputPassword = _driver.FindElement(By.CssSelector("input[type='password']"));
+            inputPassword.SendKeys("Password");
+
+            var submitButton = _driver.FindElement(By.CssSelector("button[type='submit']"));
+            submitButton.Click();
+
+            try
+            {
+                var alert = _driver.SwitchTo().Alert();
+                var alertText = alert.Text;
+                Console.WriteLine("Alert text: " + alertText);
+
+                alert.Accept();
+            }
+            catch (NoAlertPresentException)
+            {
+            }
+
+            Assert.DoesNotContain("This field is required", _driver.PageSource);
+        }
+
+        [Fact, Trait("Category", "FunctionalTest")]
+        public void NavigateToTemplateForms()
+        {
+            _driver.Navigate().GoToUrl(_websiteURL + "template-forms");
+        }
+
+        [Fact, Trait("Category", "UITest")]
+        public void TemplateFormsPageDisplaysCorrectly()
+        {
+            _driver.Navigate().GoToUrl(_websiteURL + "template-forms");
+
+            var pageTitle = _driver.Title;
+            var firstNameLabel = _driver.FindElement(By.CssSelector("#firstName")).Text;
+
+            Assert.Equal("Blazor_Project", pageTitle);
+            Assert.Equal("First Name:", firstNameLabel);
+        }
+
+        [Fact, Trait("Category", "UITest")]
+        public void SubmitTemplateFormWithValidData()
+        {
+            _driver.Navigate().GoToUrl(_websiteURL + "template-forms");
+          
+
+            var firstNameInput = _driver.FindElement(By.CssSelector("input[type='text']"));
+            firstNameInput.SendKeys("Youssef");
+
+            var submitButton = _driver.FindElement(By.CssSelector("button[type='submit']"));
+            submitButton.Click();
+
+            Assert.DoesNotContain("This field is required", _driver.PageSource);
+        }
+        
         public void Dispose()
         {
             _driver.Dispose();

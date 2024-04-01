@@ -9,6 +9,7 @@ using Blazor_Project.Services;
 using Bunit;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
+using Microsoft.JSInterop;
 
 namespace Tests
 {
@@ -56,6 +57,101 @@ namespace Tests
             component.Find(".pass-input").Change("HelloHelloWorld12./"); 
             var span3Class = component.Find(".pass-marker span:nth-child(3)").ClassName;
             Assert.Contains("spanColors strong", span3Class);
+        }
+        [Fact]
+        public void TemplateFormShouldRenderCorrectly()
+        {
+            var component = RenderComponent<TemplateFormsExample>();
+            var formData = new FormData
+            {
+                FirstName = "Youssef",
+                Password = "Password",
+                Gender = "m",
+                ShouldUseCity = true,
+                City = 1
+            };
+
+            component.SetParametersAndRender(parameters => parameters
+                .Add(p => p.FormData, formData)
+            );
+
+            Assert.NotNull(component.Find("h2"));
+            Assert.NotNull(component.Find("form"));
+            Assert.NotNull(component.Find("button[type='submit']"));
+        }
+
+        [Fact]
+        public void ReactiveFormShouldRenderCorrectly()
+        {
+       
+            var component = RenderComponent<ReactiveFormsExample>();
+            var formData = new FormData
+            {
+                FirstName = "Youssef",
+                Password = "Password",
+                Gender = "m",
+                ShouldUseCity = true,
+                City = 1
+            };
+
+         
+            component.SetParametersAndRender(parameters => parameters
+                .Add(p => p.FormModel, formData)
+            );
+
+            Assert.NotNull(component.Find("h2"));
+            Assert.NotNull(component.Find("form"));
+            Assert.NotNull(component.Find("button[type='submit']"));
+        }
+
+        [Fact]
+        public void TemplateFormSubmitShouldWorkCorrectly()
+        {
+            JSInterop.SetupVoid("alert", _ => true);
+            var component = RenderComponent<TemplateFormsExample>();
+            var formData = new FormData
+            {
+                FirstName = "Youssef",
+                Password = "Password",
+                Gender = "m",
+                ShouldUseCity = true,
+                City = 1
+            };
+
+
+            component.SetParametersAndRender(parameters => parameters
+                .Add(p => p.FormData, formData)
+            );
+            var form = component.Find("form");
+            form.Submit();
+
+            Assert.Contains("Youssef", component.Markup);
+            Assert.Contains("Password", component.Markup);
+         
+        }
+
+        [Fact]
+        public void ReactiveFormSubmitShouldWorkCorrectly()
+        {
+            JSInterop.SetupVoid("alert", _ => true);
+            var component = RenderComponent<ReactiveFormsExample>();
+            var formData = new FormData
+            {
+                FirstName = "Youssef",
+                Password = "Password",
+                Gender = "m",
+                ShouldUseCity = true,
+                City = 1
+            };
+
+            component.SetParametersAndRender(parameters => parameters
+                .Add(p => p.FormModel, formData)
+            );
+            var form = component.Find("form");
+            form.Submit();
+
+            Assert.Contains("Youssef", component.Markup);
+            Assert.Contains("Password", component.Markup);
         }
     }
 }

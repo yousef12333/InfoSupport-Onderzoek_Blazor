@@ -1,6 +1,8 @@
 using Bunit;
 using Blazor_Project;
 using Blazor_Project.Services;
+using System.Reflection;
+using Blazor_Project.Pages;
 
 namespace Tests
 {
@@ -12,6 +14,7 @@ namespace Tests
         {
             service = new PasswordStrengthService();
         }
+       
         [Fact]
         public void DestructionTestOfPasswordChecker()
         {
@@ -99,5 +102,245 @@ namespace Tests
             var result = service.IsValidationPassed(input, PasswordStrength.Strong);
             Assert.Equal(expectedResult, result);
         }
+
+        //reactive forms
+        [Fact]
+        public void FuzzTest_FirstName_Valid_Of_Reactive_Forms()
+        {
+            var formData = new FormData { FirstName = "!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123" };
+            var cut = RenderComponent<ReactiveFormsExample>(
+                ("FormModel", formData)
+            );
+            JSInterop.SetupVoid("alert", _ => true);
+            cut.Find("button[type='submit']").Click();
+
+            Assert.DoesNotContain("<span class=\"has-error\">This field is required</span>", cut.Markup);
+        }
+
+        [Fact]
+        public void DestructionTest_FormData_Null_Of_Reactive_Forms()
+        {
+            FormData formData = null;
+
+            Assert.ThrowsAny<Exception>(() => RenderComponent<ReactiveFormsExample>(
+                ("FormModel", formData)
+            ));
+        }
+        [Theory]
+        [InlineData("")]
+        [InlineData("l")]
+        [InlineData("!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123")]
+        public void BoundaryValueTest_FirstName_Of_Reactive_Forms(string firstName)
+        {
+            var formData = new FormData();
+            formData.FirstName = firstName;
+
+            var cut = RenderComponent<ReactiveFormsExample>(
+                ("FormModel", formData)
+            );
+
+            JSInterop.SetupVoid("alert", _ => true);
+
+            cut.Find("button[type='submit']").Click();
+
+            if (string.IsNullOrEmpty(firstName))
+            {
+                cut.Find(".has-error").MarkupMatches("<span class=\"has-error\">This field is required</span>");
+            }
+            else
+            {
+                Assert.DoesNotContain("<span class=\"has-error\">This field is required</span>", cut.Markup);
+            }
+        }
+
+        [Theory]
+        [InlineData("", true)]
+        [InlineData("Youssef", false)]
+        [InlineData("!@#$%^&*()_+{}[]:;<>,.?~-", false)]
+        [InlineData("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", false)]
+        [InlineData("0123456789", false)]
+        [InlineData("!@#abcDEF123", false)]
+        [InlineData("Test123opp123", false)]
+        [InlineData("Loop34nOOp43", false)]
+        [InlineData("ZER£%¨*¨ZER£%¨*¨ZER£%¨*¨", false)]
+        public void DataDrivenTest_FirstName_Of_Reactive_Forms(string firstName, bool expectError)
+        {
+            var formData = new FormData { FirstName = firstName };
+            var cut = RenderComponent<ReactiveFormsExample>(
+                ("FormModel", formData)
+            );
+            JSInterop.SetupVoid("alert", _ => true);
+            cut.Find("button[type='submit']").Click();
+
+            if (expectError)
+            {
+                cut.Find(".has-error").MarkupMatches("<span class=\"has-error\">This field is required</span>");
+            }
+            else
+            {
+                Assert.DoesNotContain("<span class=\"has-error\">This field is required</span>", cut.Markup);
+            }
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void ShouldUseCity_Checkbox_TogglesCitySelection_Of_Reactive_Forms(bool shouldUseCity)
+        {
+            var formData = new FormData { ShouldUseCity = shouldUseCity };
+            var cut = RenderComponent<ReactiveFormsExample>(
+                ("FormModel", formData)
+            );
+            JSInterop.SetupVoid("alert", _ => true);
+            cut.Find("input[type='checkbox']").Change(shouldUseCity);
+
+            if (shouldUseCity)
+            {
+                Assert.Contains("<select", cut.Markup);
+            }
+            else
+            {
+                Assert.DoesNotContain("<select", cut.Markup);
+            }
+        }
+        [Fact]
+        public void FirstName_Null_ShouldDisplayError_Of_Reactive_Forms()
+        {
+            var cut = RenderComponent<ReactiveFormsExample>();
+            JSInterop.SetupVoid("alert", _ => true);
+            cut.Find("button[type='submit']").Click();
+
+            cut.Find(".has-error").MarkupMatches("<span class=\"has-error\">This field is required</span>");
+        }
+
+        [Fact]
+        public void FirstName_NotNull_ShouldNotDisplayError_Of_Reactive_Forms()
+        {
+            var formData = new FormData { FirstName = "John" };
+            var cut = RenderComponent<ReactiveFormsExample>(
+                ("FormModel", formData)
+            );
+            JSInterop.SetupVoid("alert", _ => true);
+            cut.Find("button[type='submit']").Click();
+
+            Assert.DoesNotContain("<span class=\"has-error\">This field is required</span>", cut.Markup);
+        }
+        //template driven forms
+        [Fact]
+        public void FuzzTest_FirstName_Valid_Of_Template_Forms()
+        {
+            var formData = new FormData { FirstName = "!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123" };
+            var cut = RenderComponent<TemplateFormsExample>(
+                ("FormData", formData)
+            );
+            JSInterop.SetupVoid("alert", _ => true);
+            cut.Find("button[type='submit']").Click();
+
+            Assert.DoesNotContain("<span class=\"has-error\">This field is required</span>", cut.Markup);
+        }
+
+        [Fact]
+        public void DestructionTest_FormData_Null_Of_Template_Forms()
+        {
+            FormData formData = null;
+
+            Assert.ThrowsAny<Exception>(() => RenderComponent<TemplateFormsExample>(
+                ("FormData", formData)
+            ));
+        }
+        [Theory]
+        [InlineData("l")]
+        [InlineData("!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123")]
+        public void BoundaryValueTest_FirstName_Of_Of_Template_Forms(string firstName)
+        {
+            var formData = new FormData();
+            formData.FirstName = firstName;
+
+            var cut = RenderComponent<TemplateFormsExample>(
+                ("FormData", formData)
+            );
+
+            JSInterop.SetupVoid("alert", _ => true);
+
+            cut.Find("button[type='submit']").Click();
+
+            if (string.IsNullOrEmpty(firstName))
+            {
+                cut.Find(".has-error").MarkupMatches("<span class=\"has-error\">This field is required</span>");
+            }
+            else
+            {
+                Assert.DoesNotContain("<span class=\"has-error\">This field is required</span>", cut.Markup);
+            }
+        }
+
+        [Theory]
+        [InlineData("Youssef", false)]
+        [InlineData("!@#$%^&*()_+{}[]:;<>,.?~-", false)]
+        [InlineData("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", false)]
+        [InlineData("0123456789", false)]
+        [InlineData("!@#abcDEF123", false)]
+        [InlineData("Test123opp123", false)]
+        [InlineData("Loop34nOOp43", false)]
+        [InlineData("ZER£%¨*¨ZER£%¨*¨ZER£%¨*¨", false)]
+        public void DataDrivenTest_FirstName_Of_Template_Forms(string firstName, bool expectError)
+        {
+            var formData = new FormData { FirstName = firstName };
+            var cut = RenderComponent<TemplateFormsExample>(
+                ("FormData", formData)
+            );
+            JSInterop.SetupVoid("alert", _ => true);
+            cut.Find("button[type='submit']").Click();
+
+            if (expectError)
+            {
+                cut.Find(".has-error").MarkupMatches("<span class=\"has-error\">This field is required</span>");
+            }
+            else
+            {
+                Assert.DoesNotContain("<span class=\"has-error\">This field is required</span>", cut.Markup);
+            }
+        }
+     
+
+        [Fact]
+        public void FirstName_NotNull_ShouldNotDisplayError_Of_Template_Forms()
+        {
+            var formData = new FormData { FirstName = "John" };
+            var cut = RenderComponent<TemplateFormsExample>(
+                ("FormData", formData)
+            );
+            JSInterop.SetupVoid("alert", _ => true);
+            cut.Find("form").Submit();
+
+            Assert.Throws<ElementNotFoundException>(() => cut.Find(".has-error"));
+        }
+
+        [Fact]
+        public void ShouldUseCity_Checkbox_TogglesCitySelection_Of_Template_Forms()
+        {
+            var formData = new FormData();
+            var cut = RenderComponent<TemplateFormsExample>(
+                ("FormData", formData)
+            );
+            JSInterop.SetupVoid("alert", _ => true);
+            cut.Find("input[type='checkbox']").Change(true);
+
+            Assert.Contains("<select", cut.Markup);
+        }
+
+        [Fact]
+        public void City_Selection_ShouldNotBeVisible_WhenShouldUseCityIsFalse_Of_Template_Forms()
+        {
+            var formData = new FormData();
+            var cut = RenderComponent<TemplateFormsExample>(
+                ("FormData", formData)
+            );
+            JSInterop.SetupVoid("alert", _ => true);
+            cut.Find("input[type='checkbox']").Change(false);
+
+            Assert.DoesNotContain("<select", cut.Markup);
+        }
+
     }
 }
