@@ -1,129 +1,80 @@
 ﻿@page "/template-forms"
 @using System.Text.Json
 @using Microsoft.JSInterop
-
+<link rel="stylesheet" href="css/FormExample.css">
 <h1>Template-driven Form Example:</h1>
-<h2>Hello, @user.FirstName, your gender is @selectedGender?.Label</h2>
+<h2>Hello, @FormData.FirstName, your gender is @SelectedGender?.Label</h2>
 
-<form @ref="f" @onsubmit="OnFormSubmit">
-    <p class="@((!string.IsNullOrWhiteSpace(user.FirstName) && (userNameDirty || userNameTouched)) ? "has-error" : "")">
-        <label id="firstName" style="color: @(string.IsNullOrWhiteSpace(user.FirstName) ? "red" : "inherit");">First Name:</label>
-        <input type="text" @bind="user.FirstName" required style="color: @(string.IsNullOrWhiteSpace(user.FirstName) ? "red" : "inherit");">
-        <span style="color: @(string.IsNullOrWhiteSpace(user.FirstName) ? "red" : "inherit");">@((string.IsNullOrWhiteSpace(user.FirstName)) ? "This field is required" : "")</span>
+<form @onsubmit="OnFormSubmit">
+    <p class="@((!string.IsNullOrWhiteSpace(FormData.FirstName) && (UserNameDirty || UserNameTouched)) ? "has-error" : "")">
+        <label id="firstName" style="color: @(string.IsNullOrWhiteSpace(FormData.FirstName) ? "red" : "inherit");">First Name:</label>
+        <input type="text" @bind="FormData.FirstName" required style="color: @(string.IsNullOrWhiteSpace(FormData.FirstName) ? "red" : "inherit");">
+        <span style="color: @(string.IsNullOrWhiteSpace(FormData.FirstName) ? "red" : "inherit");">@((string.IsNullOrWhiteSpace(FormData.FirstName)) ? "This field is required" : "")</span>
     </p>
-
     <p>
         <label>Password:</label>
-        <input type="password" @bind="user.Password" required>
+        <input type="password" @bind="FormData.Password" required>
     </p>
-
     <p>
         Choose gender:
-        @foreach (var genderOption in genderOptions)
+        @foreach (var genderOption in GenderOptions)
         {
-            <label>
-                <input type="radio" name="gender" checked="@IsGenderSelected(genderOption)" @onclick="() => SelectGender(genderOption)" />
-                @genderOption.Label
-            </label>
+            <label><input type="radio" name="gender" checked="@IsGenderSelected(genderOption)" @onclick="() => SelectGender(genderOption)" />@genderOption.Label</label>
         }
     </p>
-
-    <p>
-        <input type="checkbox" @bind="shouldUseCity">
-    </p>
-
-    @if (shouldUseCity)
+    <p><input type="checkbox" @bind="FormData.ShouldUseCity"></p>
+    @if (FormData.ShouldUseCity)
     {
-        <select @bind="selectedCity">
-            @foreach (var city in cities)
+        <select @bind="FormData.City">
+            @foreach (var city in Cities)
             {
-                <option value="@city.id"> @city.name</option>
+                <option value="@city.id">@city.name</option>
             }
         </select>
     }
-
     <p>
         <label>Stand-alone:</label>
-        <input type="text" @bind="standalone" required>
+        <input type="text" @bind="Standalone" required>
     </p>
-
-    <p>
-        <button type="submit" disabled="@(!IsFormValid)">Submit</button>
-    </p>
+    <p><button type="submit" disabled="@(!IsFormValid)">Submit</button></p>
 </form>
 
 @code {
-    @inject IJSRuntime JSRuntime
-    private User user = new User();
-    private bool userNameValid;
-    private bool userNameDirty;
-    private bool userNameTouched;
-    private Gender selectedGender;
-    private bool shouldUseCity;
-    private int selectedCity;
-    private string standalone;
+    [Inject] private IJSRuntime JSRuntime { get; set; }
+    private FormData FormData { get; set; } = new FormData();
+    private bool UserNameDirty { get; set; }
+    private bool UserNameTouched { get; set; }
+    private Gender SelectedGender { get; set; }
+    private string Standalone { get; set; }
 
-    private ElementReference f;
-
-    private bool IsGenderSelected(Gender genderOption) => selectedGender == genderOption;
-
-    private void SelectGender(Gender genderOption)
-    {
-        selectedGender = genderOption;
-    }
-    private bool IsFormValid =>
-    !string.IsNullOrWhiteSpace(user.FirstName) &&
-    !string.IsNullOrWhiteSpace(user.Password) &&
-    selectedGender != null &&
-    (!shouldUseCity || selectedCity != 0);
-
-    private async Task OnFormSubmit()
-    {
-        // Simulating form submission
-        var formData = new Dictionary<string, string>
-        {
-            { "name", user.FirstName },
-            { "password", user.Password },
-            { "shouldUseCity", shouldUseCity.ToString() },
-            { "label", selectedGender.Label},
-            { "gender", selectedGender.GenderType},
-            { "city", shouldUseCity ? selectedCity.ToString() : "" },
-            
-        };
-        var json = JsonSerializer.Serialize(formData, new JsonSerializerOptions { WriteIndented = true });
-        await JSRuntime.InvokeVoidAsync("alert", json);
-    }
-}
-
-@code {
-    private class User
-    {
-        public string FirstName { get; set; }
-        public string Password { get; set; }
-
-        public bool IsValid()
-        {
-            // Add additional validation logic as needed
-            return !string.IsNullOrWhiteSpace(FirstName) && !string.IsNullOrWhiteSpace(Password);
-        }
-    }
-
-    private class Gender
-    {
-        public string GenderType { get; set; }
-        public string Label { get; set; }
-    }
-
-    private List<Gender> genderOptions = new List<Gender>
-    {
+    private List<Gender> GenderOptions { get; } = new List<Gender> {
         new Gender { GenderType = "m", Label = "male" },
         new Gender { GenderType = "f", Label = "female" }
     };
 
-    private List<dynamic> cities = new List<dynamic>
-    {
+    private List<dynamic> Cities { get; } = new List<dynamic> {
         new { id = 1, name = "Kharkiv" },
         new { id = 2, name = "Kiev" },
         new { id = 3, name = "Lviv" }
     };
+
+    private bool IsGenderSelected(Gender genderOption) => SelectedGender == genderOption;
+
+    private void SelectGender(Gender genderOption) { SelectedGender = genderOption; }
+
+    private bool IsFormValid => !string.IsNullOrWhiteSpace(FormData.FirstName) && !string.IsNullOrWhiteSpace(FormData.Password) && SelectedGender != null && (!FormData.ShouldUseCity || FormData.City != 0);
+
+    private async Task OnFormSubmit()
+    {
+        var formDataDict = new Dictionary<string, string> {
+            { "name", FormData.FirstName },
+            { "password", FormData.Password },
+            { "shouldUseCity", FormData.ShouldUseCity.ToString() },
+            { "label", SelectedGender?.Label },
+            { "gender", SelectedGender?.GenderType },
+            { "city", FormData.ShouldUseCity ? FormData.City.ToString() : "" }
+        };
+        var json = JsonSerializer.Serialize(formDataDict, new JsonSerializerOptions { WriteIndented = true });
+        await JSRuntime.InvokeVoidAsync("alert", json);
+    }
 }

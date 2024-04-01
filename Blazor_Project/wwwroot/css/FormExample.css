@@ -1,0 +1,9 @@
+﻿.has-error {
+    color: red;
+}
+
+input[type="radio"] {
+    margin: 5px;
+}
+
+

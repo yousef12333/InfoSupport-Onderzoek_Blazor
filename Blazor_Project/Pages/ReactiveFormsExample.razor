@@ -1,114 +1,103 @@
 ﻿@page "/reactive-forms"
-@using System.ComponentModel.DataAnnotations
 @using System.Text.Json
-
+<link rel="stylesheet" href="css/FormExample.css">
 <h1>Model-based Form Example:</h1>
-<h2>Hello, @formModel.FirstName, your gender is @genderLabel</h2>
+<h2>Hello, @FormModel.FirstName, your gender is @GenderLabel</h2>
 
-<EditForm Model="@formModel" OnSubmit="Submit">
+<EditForm Model="@FormModel" OnSubmit="Submit">
     <p>
-        <label id="firstName" style="color: @(string.IsNullOrWhiteSpace(formModel.FirstName) ? "red" : "inherit");">First Name:</label>
-        <InputText @bind-Value="formModel.FirstName" />
-        @if (string.IsNullOrWhiteSpace(formModel.FirstName))
+        <label id="firstName" style='color: @(string.IsNullOrWhiteSpace(FormModel.FirstName) ? "red" : "inherit")'>First Name:</label>
+        <InputText @bind-Value="FormModel.FirstName" />
+        @if (string.IsNullOrWhiteSpace(FormModel.FirstName))
         {
-            <span style="color: red;">This field is required</span>
+            <span class="has-error">This field is required</span>
         }
     </p>
     <p>
         <label>Password:</label>
-        <InputText type="password" @bind-Value="formModel.Password" />
+        <InputText type="password" @bind-Value="FormModel.Password" />
     </p>
-
     <p>
         Choose gender:
-        @foreach (var genderOption in genderOptions)
-        {
-            <label>
-                <input type="radio" name="gender" @onclick="() => SetGender(genderOption.GenderType)" checked="@IsSelectedGender(genderOption.GenderType)" />
-                @genderOption.Label
-            </label>
-        }
-        <ValidationMessage For="@(() => formModel.Gender)" />
+        @RenderGenderOptions()
+        <ValidationMessage For="@(() => FormModel.Gender)" />
     </p>
     <p>
-        <input type="checkbox" @bind="formModel.ShouldUseCity" />
+        <input type="checkbox" @bind="FormModel.ShouldUseCity" />
     </p>
-
-    @if (formModel.ShouldUseCity)
+    @if (FormModel.ShouldUseCity)
     {
-        <select @bind="formModel.City">
-            @foreach (var city in cities)
+        <select @bind="FormModel.City">
+            @foreach (var city in Cities)
             {
                 <option value="@city.Id">@city.Name</option>
             }
         </select>
     }
-
     <p>
         <button type="submit">Submit</button>
     </p>
 </EditForm>
 
 @code {
+    [Inject] private IJSRuntime JSRuntime { get; set; }
+    private FormData FormModel { get; set; } = new FormData();
+    private string GenderLabel { get; set; }
 
-    private class FormData
-    {
-        public string FirstName { get; set; }
-        public string Password { get; set; }
-        public string Gender { get; set; }
-        public bool ShouldUseCity { get; set; }
-        public int City { get; set; }
-    }
-
-    private FormData formModel = new FormData();
-    private string genderLabel;
-
-    private readonly List<Gender> genderOptions = new List<Gender>
+    private readonly List<Gender> GenderOptions = new List<Gender>
     {
         new Gender { GenderType = "m", Label = "male" },
         new Gender { GenderType = "f", Label = "female" }
     };
-    private bool IsSelectedGender(string genderType) => formModel.Gender == genderType;
+
+    private bool IsSelectedGender(string genderType) => FormModel.Gender == genderType;
 
     private void SetGender(string genderType)
     {
-        formModel.Gender = genderType;
-        genderLabel = genderOptions.FirstOrDefault(g => g.GenderType == formModel.Gender)?.Label;
+        FormModel.Gender = genderType;
+        GenderLabel = GenderOptions.FirstOrDefault(g => g.GenderType == FormModel.Gender)?.Label;
     }
 
     private async Task Submit()
     {
-        var formData = new Dictionary<string, string>
-        {
-            { "firstName", formModel.FirstName },
-            { "password", formModel.Password },
-            { "shouldUseCity", formModel.ShouldUseCity.ToString() },
-            { "gender", formModel.Gender },
-            { "label", genderLabel},
-            { "city", formModel.ShouldUseCity ? formModel.City.ToString() : "" }
-        };
-
+        var formData = GenerateFormData();
         var json = JsonSerializer.Serialize(formData, new JsonSerializerOptions { WriteIndented = true });
         await JSRuntime.InvokeVoidAsync("alert", json);
     }
 
-    [Inject] private IJSRuntime JSRuntime { get; set; }
-    private IEnumerable<City> cities = new List<City>
+    private Dictionary<string, string> GenerateFormData()
+    {
+        return new Dictionary<string, string>
+        {
+            { "firstName", FormModel.FirstName },
+            { "password", FormModel.Password },
+            { "shouldUseCity", FormModel.ShouldUseCity.ToString() },
+            { "gender", FormModel.Gender },
+            { "label", GenderLabel },
+            { "city", FormModel.ShouldUseCity ? FormModel.City.ToString() : "" }
+        };
+    }
+
+    private RenderFragment RenderGenderOptions() => builder =>
+    {
+        foreach (var genderOption in GenderOptions)
+        {
+            builder.OpenElement(0, "label");
+            builder.OpenElement(1, "input");
+            builder.AddAttribute(2, "type", "radio");
+            builder.AddAttribute(3, "name", "gender");
+            builder.AddAttribute(4, "checked", IsSelectedGender(genderOption.GenderType));
+            builder.AddAttribute(5, "onclick", EventCallback.Factory.Create(this, () => SetGender(genderOption.GenderType)));
+            builder.CloseElement();
+            builder.AddContent(6, genderOption.Label);
+            builder.CloseElement();
+        }
+    };
+
+    private IEnumerable<City> Cities = new List<City>
     {
         new City { Id = 1, Name = "Kharkiv" },
         new City { Id = 2, Name = "Kiev" },
         new City { Id = 3, Name = "Lviv" }
     };
-
-    private class City
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-    }
-
-    private class Gender
-    {
-        public string GenderType { get; set; }
-        public string Label { get; set; }
-    }
 }
