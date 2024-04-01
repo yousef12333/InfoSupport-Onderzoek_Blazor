@@ -41,7 +41,8 @@
 
 @code {
     [Inject] private IJSRuntime JSRuntime { get; set; }
-    private FormData FormModel { get; set; } = new FormData();
+    [Parameter]
+    public FormData FormModel { get; set; } = new FormData();
     private string GenderLabel { get; set; }
 
     private readonly List<Gender> GenderOptions = new List<Gender>

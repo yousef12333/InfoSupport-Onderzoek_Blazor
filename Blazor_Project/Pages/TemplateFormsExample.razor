@@ -41,7 +41,8 @@
 
 @code {
     [Inject] private IJSRuntime JSRuntime { get; set; }
-    private FormData FormData { get; set; } = new FormData();
+    [Parameter]
+    public FormData FormData { get; set; } = new FormData();
     private bool UserNameDirty { get; set; }
     private bool UserNameTouched { get; set; }
     private Gender SelectedGender { get; set; }
