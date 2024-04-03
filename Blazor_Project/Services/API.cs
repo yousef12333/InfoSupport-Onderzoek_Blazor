@@ -34,6 +34,33 @@ namespace Blazor_Project.Services
             OnMovieDetailsReceived?.Invoke(movieDetails);
             return movieDetails;
         }
+        public async Task<int> GetMovieIdByTitle(string title)
+        {
+            var url = $"{BaseUri}search/movie?api_key={ApiKey}&query={title}";
+
+            try
+            {
+                var response = await _httpClient.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+
+                var content = await response.Content.ReadAsStringAsync();
+                var searchResult = JsonSerializer.Deserialize<SearchResult>(content);
+
+                if (searchResult?.results != null && searchResult.results.Count() > 0)
+                {
+                    return searchResult.results[0].Id;
+                }
+                else
+                {
+                    return -1; 
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error occurred during search: {ex.Message}");
+                return -1; 
+            }
+        }
         public async Task<(List<string> originalTitles, List<int> voteCounts)> Search(string searchTerm)
         {
             var url = $"{BaseUri}search/movie?api_key={ApiKey}&query={searchTerm}";
@@ -53,9 +80,10 @@ namespace Blazor_Project.Services
 
                 if (searchResult?.results != null && searchResult.results.Any())
                 {
-                    Console.WriteLine($"Number of movies found: {searchResult.results.Length}");
+                    var sortedMovies = searchResult.results.OrderByDescending(movie => movie.VoteCount);
+                    Console.WriteLine($"Number of movies found: {sortedMovies.Count()}");
 
-                    foreach (var movie in searchResult.results)
+                    foreach (var movie in sortedMovies)
                     {
                         originalTitles.Add(movie.Title);
                         voteCounts.Add(movie.VoteCount);

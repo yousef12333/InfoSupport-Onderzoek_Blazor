@@ -38,7 +38,7 @@
 }
 else
 {
-    <h1>You need to select a movie first!</h1>
+    <h1>Loading...</h1>
 }
 
 @code {
@@ -46,11 +46,11 @@ else
     private MovieDetails selectedMovieDetails;
     private API api = new API();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         if (!string.IsNullOrEmpty(MovieId))
         {
-            api.GetMovieDetails(MovieId);
+            selectedMovieDetails = await api.GetMovieDetails(MovieId);
         }
     }
 }
