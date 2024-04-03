@@ -1,13 +1,24 @@
 ﻿@using Blazor_Project.Services
 @using Blazor_Project.Classes
+
 <div class="MoviesSearch">
     <input ref="@inputElement" placeholder="Start here..." @oninput="HandleTyping" @bind-value="searchTerm" />
+    <ul class="MoviesSearch__list-group">
+        @foreach (var movie in searchResults)
+        {
+            <li class="MoviesSearch__list-group-item">
+                <a href="/details/@movie.Id">@movie.Title<span>(votes: @movie.VoteCount)</span></a>
+            </li>
+        }
+    </ul>
 </div>
 
 @code {
     private ElementReference inputElement;
-    [Parameter] public string searchTerm { get; set; }
+    [Parameter]
+    public string searchTerm { get; set; } = string.Empty;
     [Parameter] public EventCallback<string> searchTermChanged { get; set; }
+    private List<Movie> searchResults = new List<Movie>();
     private API api = new API();
 
     private async Task HandleTyping(ChangeEventArgs e)
@@ -15,16 +26,27 @@
         searchTerm = e.Value.ToString().Trim();
         if (searchTerm.Length >= 3)
         {
-            api.Search(searchTerm);
+            await SearchMovies();
         }
         else
         {
+            searchResults.Clear();
         }
-
-        await searchTermChanged.InvokeAsync(searchTerm);
     }
-    private void HandleSearchTermChanged(string searchTerm)
+
+    private async Task SearchMovies()
     {
+        var (originalTitles, voteCounts) = await api.Search(searchTerm);
+        searchResults.Clear();
+
+        for (int i = 0; i < originalTitles.Count; i++)
+        {
+            var movie = new Movie
+                {
+                    Title = originalTitles[i],
+                    VoteCount = voteCounts[i]
+                };
+            searchResults.Add(movie);
+        }
     }
 }
-    
