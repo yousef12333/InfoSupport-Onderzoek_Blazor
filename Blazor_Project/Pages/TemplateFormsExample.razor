@@ -1,6 +1,13 @@
 ﻿@page "/template-forms"
 @using System.Text.Json
 @using Microsoft.JSInterop
+@using System.Diagnostics
+@using Microsoft.Extensions.Logging
+@using Blazor_Project.Classes
+@using System;
+@using System.Net.Http;
+@using Blazor_Project.Services
+@inject ILogger<TemplateFormsExample> Logger;
 <link rel="stylesheet" href="css/FormExample.css">
 <h1>Template-driven Form Example:</h1>
 <h2>Hello, @FormData.FirstName, your gender is @SelectedGender?.Label</h2>
@@ -40,6 +47,7 @@
 </form>
 
 @code {
+    private Stopwatch stopwatch = new Stopwatch();
     [Inject] private IJSRuntime JSRuntime { get; set; }
     [Parameter]
     public FormData FormData { get; set; } = new FormData();
@@ -67,15 +75,39 @@
 
     private async Task OnFormSubmit()
     {
-        var formDataDict = new Dictionary<string, string> {
-            { "name", FormData.FirstName },
-            { "password", FormData.Password },
-            { "shouldUseCity", FormData.ShouldUseCity.ToString() },
-            { "label", SelectedGender?.Label },
-            { "gender", SelectedGender?.GenderType },
-            { "city", FormData.ShouldUseCity ? FormData.City.ToString() : "" }
-        };
-        var json = JsonSerializer.Serialize(formDataDict, new JsonSerializerOptions { WriteIndented = true });
-        await JSRuntime.InvokeVoidAsync("alert", json);
+        try
+        {
+
+            stopwatch.Restart();
+            var formDataDict = new Dictionary<string, string> {
+                 { "name", FormData.FirstName },
+                 { "password", FormData.Password },
+                 { "shouldUseCity", FormData.ShouldUseCity.ToString() },
+                 { "label", SelectedGender?.Label },
+                 { "gender", SelectedGender?.GenderType },
+                 { "city", FormData.ShouldUseCity ? FormData.City.ToString() : "" }
+                };
+
+
+            var json = JsonSerializer.Serialize(formDataDict, new JsonSerializerOptions { WriteIndented = true });
+            stopwatch.Stop();
+            Log($"The form is submitted - Execution Time: {stopwatch.ElapsedMilliseconds} ms");
+            await JSRuntime.InvokeVoidAsync("alert", json);
+
+
+
+        }
+        catch (Exception ex)
+        {
+            Log(ex.Message);
+        }
+
+    }
+
+
+
+    private void Log(string message)
+    {
+        Logger.LogInformation(message);
     }
 }

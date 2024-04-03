@@ -1,4 +1,4 @@
-﻿namespace Blazor_Project
+﻿namespace Blazor_Project.Classes
 {
     public static class ValidationType
     {

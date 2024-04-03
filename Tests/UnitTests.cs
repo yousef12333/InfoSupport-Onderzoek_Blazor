@@ -1,8 +1,8 @@
 using Bunit;
-using Blazor_Project;
 using Blazor_Project.Services;
 using System.Reflection;
 using Blazor_Project.Pages;
+using Blazor_Project.Classes;
 
 namespace Tests
 {

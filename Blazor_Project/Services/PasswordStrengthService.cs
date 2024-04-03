@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Blazor_Project.Classes;
+using Microsoft.Extensions.Logging;
 using System.Text.RegularExpressions;
 
 namespace Blazor_Project.Services

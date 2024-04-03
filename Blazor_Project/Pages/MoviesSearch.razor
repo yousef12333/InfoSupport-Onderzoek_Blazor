@@ -1,0 +1,30 @@
+﻿@using Blazor_Project.Services
+@using Blazor_Project.Classes
+<div class="MoviesSearch">
+    <input ref="@inputElement" placeholder="Start here..." @oninput="HandleTyping" @bind-value="searchTerm" />
+</div>
+
+@code {
+    private ElementReference inputElement;
+    [Parameter] public string searchTerm { get; set; }
+    [Parameter] public EventCallback<string> searchTermChanged { get; set; }
+    private API api = new API();
+
+    private async Task HandleTyping(ChangeEventArgs e)
+    {
+        searchTerm = e.Value.ToString().Trim();
+        if (searchTerm.Length >= 3)
+        {
+            api.Search(searchTerm);
+        }
+        else
+        {
+        }
+
+        await searchTermChanged.InvokeAsync(searchTerm);
+    }
+    private void HandleSearchTermChanged(string searchTerm)
+    {
+    }
+}
+    

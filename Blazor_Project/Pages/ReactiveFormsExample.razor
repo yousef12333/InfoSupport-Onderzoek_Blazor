@@ -1,5 +1,14 @@
 ﻿@page "/reactive-forms"
+@using Blazor_Project.Classes
 @using System.Text.Json
+@using System.Diagnostics
+@using System.Text.Json
+@using System.Diagnostics
+@using Microsoft.Extensions.Logging
+@using System
+@using System.Net.Http
+@using Blazor_Project.Services
+@inject ILogger<TemplateFormsExample> Logger;
 <link rel="stylesheet" href="css/FormExample.css">
 <h1>Model-based Form Example:</h1>
 <h2>Hello, @FormModel.FirstName, your gender is @GenderLabel</h2>
@@ -40,6 +49,7 @@
 </EditForm>
 
 @code {
+    private Stopwatch stopwatch = new Stopwatch();
     [Inject] private IJSRuntime JSRuntime { get; set; }
     [Parameter]
     public FormData FormModel { get; set; } = new FormData();
@@ -61,9 +71,21 @@
 
     private async Task Submit()
     {
-        var formData = GenerateFormData();
-        var json = JsonSerializer.Serialize(formData, new JsonSerializerOptions { WriteIndented = true });
-        await JSRuntime.InvokeVoidAsync("alert", json);
+        try
+        {
+            
+            stopwatch.Restart();
+            var formData = GenerateFormData();
+            var json = JsonSerializer.Serialize(formData, new JsonSerializerOptions { WriteIndented = true });
+            stopwatch.Stop();
+            Log($"The form is submitted - Execution Time: {stopwatch.ElapsedMilliseconds} ms");
+            await JSRuntime.InvokeVoidAsync("alert", json);
+           
+        }
+        catch (Exception ex)
+        {
+            Log(ex.Message);
+        }
     }
 
     private Dictionary<string, string> GenerateFormData()
@@ -101,4 +123,17 @@
         new City { Id = 2, Name = "Kiev" },
         new City { Id = 3, Name = "Lviv" }
     };
+    private async Task MeasureExecutionTime(Func<Task> action, string logMessage)
+    {
+        stopwatch.Restart();
+        await action();
+        stopwatch.Stop();
+
+        Log($"{logMessage} - Execution Time: {stopwatch.ElapsedMilliseconds} ms");
+    }
+
+    private void Log(string message)
+    {
+        Logger.LogInformation(message);
+    }
 }

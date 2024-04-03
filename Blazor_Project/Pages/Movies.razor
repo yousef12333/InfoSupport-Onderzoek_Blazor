@@ -1,0 +1,63 @@
+﻿@page "/movies"
+@using System.Collections.Generic
+@using Blazor_Project.Services
+@using Blazor_Project.Classes
+@using Microsoft.AspNetCore.Components
+@inject NavigationManager NavigationManager
+
+<h1><NavLink href="/">Most Popular Movies</NavLink></h1>
+<MoviesSearch @bind-searchTerm="searchTerm" />
+@if (searchResults != null)
+{
+    <ul class="MoviesSearch__list-group">
+        @foreach (var movie in searchResults)
+        {
+            <li class="MoviesSearch__list-group-item" key="@movie.Id">
+                <NavLink href="@($"details/{movie.Id}")">
+                    @movie.Title
+                    <span>
+                        (votes: @movie.VoteCount)
+                    </span>
+                </NavLink>
+            </li>
+        }
+    </ul>
+}
+
+@code {
+    [Inject] public API api { get; set; }
+    private List<Movie> searchResults;
+    private string searchTerm;
+    private ElementReference inputElement;
+
+    protected override void OnInitialized()
+    {
+        api.OnResultsReceived += HandleResultsReceived;
+        api.OnMovieDetailsReceived += HandleMovieDetailsReceived;
+        api.GetResults();
+    }
+
+    private void HandleResultsReceived(Movie[] results)
+    {
+        searchResults = results.ToList();
+        StateHasChanged();
+    }
+
+    private void HandleMovieDetailsReceived(MovieDetails movieDetails)
+    {
+        NavigationManager.NavigateTo("/details/" + movieDetails.Id);
+    }
+
+    private void HandleTyping(ChangeEventArgs e)
+    {
+        searchTerm = e.Value.ToString().Trim();
+        if (searchTerm.Length >= 3)
+        {
+            api.Search(searchTerm);
+        }
+        else
+        {
+            searchResults = new List<Movie>();
+        }
+    }
+}

@@ -1,0 +1,56 @@
+﻿@page "/details/{MovieId}"
+@using Blazor_Project.Services
+@using Blazor_Project.Classes
+@using System.Reactive.Linq
+@inject NavigationManager NavigationManager
+
+@if (selectedMovieDetails != null)
+{
+    <div class="MoviesDetail">
+        <header class="MoviesDetail__header">
+            <h2>@selectedMovieDetails.Title</h2>
+            <div>
+                Release date: <strong>@selectedMovieDetails.ReleaseDate</strong> -
+                <span> Votes average: <strong>@selectedMovieDetails.VotesAverage</strong></span>
+            </div>
+        </header>
+        <div class="MoviesDetail__img">
+            <img src="@($"{api.ImagesUri}w300{selectedMovieDetails.PosterPath}")" alt="@selectedMovieDetails.Title" />
+        </div>
+        <div class="MoviesDetail__content">
+            <div>
+                <strong>Adult: </strong>
+                <input type="checkbox" checked="@selectedMovieDetails.Adult" disabled />
+            </div>
+            <div>
+                <strong>Original language:</strong> @selectedMovieDetails.Language
+            </div>
+            <div>
+                <strong>Original title:</strong> @selectedMovieDetails.OriginalTitle
+            </div>
+            <div>
+                <strong>Overview</strong>
+                <br />
+                @selectedMovieDetails.Overview
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <h1>You need to select a movie first!</h1>
+}
+
+@code {
+    [Parameter] public string MovieId { get; set; }
+    private MovieDetails selectedMovieDetails;
+    private API api = new API();
+
+    protected override void OnInitialized()
+    {
+        if (!string.IsNullOrEmpty(MovieId))
+        {
+            api.GetMovieDetails(MovieId);
+        }
+    }
+}

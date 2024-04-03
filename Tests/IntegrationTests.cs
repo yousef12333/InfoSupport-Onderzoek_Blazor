@@ -10,6 +10,7 @@ using Bunit;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Microsoft.JSInterop;
+using Blazor_Project.Classes;
 
 namespace Tests
 {
