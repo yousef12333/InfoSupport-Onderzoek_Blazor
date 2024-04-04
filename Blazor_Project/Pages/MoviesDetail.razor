@@ -4,7 +4,7 @@
 @using System.Threading.Tasks
 @inject NavigationManager NavigationManager
 <link rel="stylesheet" href="css/MoviesDetail.css">
-<link rel="stylesheet" href="css/MoviesSearch.css">
+
 @if (selectedMovieDetails != null)
 {
     <div class="MoviesDetail">
@@ -44,6 +44,7 @@ else
 
 @code {
     [Parameter] public string MovieId { get; set; }
+    private IDisposable subscription;
     private MovieDetails selectedMovieDetails;
     private API api = new API();
 
@@ -51,7 +52,18 @@ else
     {
         if (!string.IsNullOrEmpty(MovieId))
         {
-            selectedMovieDetails = await api.GetMovieDetails(MovieId);
+            subscription?.Dispose(); 
+            subscription = api.GetMovieDetails(MovieId)
+                .Subscribe(result =>
+                {
+                    selectedMovieDetails = result;
+                    StateHasChanged();
+                });
         }
+    }
+
+    public void Dispose()
+    {
+        subscription?.Dispose();
     }
 }

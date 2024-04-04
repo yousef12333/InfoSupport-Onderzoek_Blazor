@@ -1,5 +1,6 @@
 ﻿@using Blazor_Project.Services
 @using Blazor_Project.Classes
+<link rel="stylesheet" href="css/MoviesSearch.css">
 <div class="MoviesSearch">
     <input class="MoviesSearch__input" ref="@inputElement" placeholder="Start here..." @oninput="HandleTyping" @bind-value="searchTerm" />
     <ul class="MoviesSearch__list-group">
@@ -14,9 +15,8 @@
 
 @code {
     private ElementReference inputElement;
-    [Parameter]
-    public string searchTerm { get; set; } = string.Empty;
-    [Parameter] public EventCallback<string> searchTermChanged { get; set; }
+    private IDisposable subscription;
+    private string searchTerm = string.Empty;
     private List<Movie> searchResults = new List<Movie>();
     private API api = new API();
 
@@ -35,17 +35,26 @@
 
     private async Task SearchMovies()
     {
-        var (originalTitles, voteCounts) = await api.Search(searchTerm);
-        searchResults.Clear();
-
-        for (int i = 0; i < originalTitles.Count; i++)
-        {
-            var movie = new Movie
+        subscription?.Dispose(); 
+        subscription = api.Search(searchTerm)
+            .Subscribe(result =>
+            {
+                var (originalTitles, voteCounts) = result;
+                searchResults.Clear();
+                for (int i = 0; i < originalTitles.Count; i++)
                 {
-                    Title = originalTitles[i],
-                    VoteCount = voteCounts[i]
-                };
-            searchResults.Add(movie);
-        }
+                    searchResults.Add(new Movie
+                        {
+                            Title = originalTitles[i],
+                            VoteCount = voteCounts[i]
+                        });
+                }
+                StateHasChanged();
+            });
+    }
+
+    public void Dispose()
+    {
+        subscription?.Dispose();
     }
 }
