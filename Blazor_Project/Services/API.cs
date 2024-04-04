@@ -32,6 +32,7 @@ namespace Blazor_Project.Services
             var contentStream = await response.Content.ReadAsStreamAsync();
             var movieDetails = await JsonSerializer.DeserializeAsync<MovieDetails>(contentStream);
             OnMovieDetailsReceived?.Invoke(movieDetails);
+            Console.WriteLine($"Movie details in api: {movieDetails}");
             return movieDetails;
         }
         public async Task<int> GetMovieIdByTitle(string title)
