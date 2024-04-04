@@ -14,7 +14,7 @@ namespace Blazor_Project.Classes
         public string OriginalTitle { get; set; }
         [JsonPropertyName("overview")]
         public string Overview { get; set; }
-        [JsonPropertyName("posterpath")]
+        [JsonPropertyName("poster_path")]
         public string PosterPath { get; set; }
         [JsonPropertyName("release_date")]
         public string ReleaseDate { get; set; }

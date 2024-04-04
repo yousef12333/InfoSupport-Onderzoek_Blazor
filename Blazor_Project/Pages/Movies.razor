@@ -2,7 +2,7 @@
 @using Blazor_Project.Classes
 @using Blazor_Project.Services
 @inject NavigationManager NavigationManager
-
+<link rel="stylesheet" href="css/Movies.css">
 <div class="MoviesSearch">
     <h1><NavLink href="/">Most Popular Movies</NavLink></h1>
     <input ref="@inputElement" placeholder="Start here..." @oninput="HandleTyping" @bind-value="searchTerm" />
