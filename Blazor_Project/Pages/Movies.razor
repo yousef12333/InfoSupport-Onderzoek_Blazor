@@ -8,7 +8,7 @@
 
 <div class="MoviesSearch">
     <h1><NavLink href="/">Most Popular Movies</NavLink></h1>
-    <input class="MoviesSearch__input" ref="@inputElement" placeholder="Start here..." @oninput="HandleTyping" @bind-value="searchTerm" />
+    <input class="MoviesSearch__input" @ref="inputElement" placeholder="Start here..." @oninput="HandleTyping" @bind-value="searchTerm" />
     <ul class="MoviesSearch__list-group">
         @foreach (var movie in searchResults)
         {
@@ -37,9 +37,10 @@
         }
         else
         {
-            searchResults.Clear();
+            ClearSearchResults();
         }
     }
+
     private async Task SearchMovies()
     {
         subscription?.Dispose();
@@ -47,33 +48,32 @@
             .Subscribe(async result =>
             {
                 var (originalTitles, voteCounts) = result;
-                searchResults.Clear();
-
-                var movieIds = await Observable.FromAsync(async () =>
-                {
-                    var ids = new List<int>();
-                    foreach (var title in originalTitles)
-                    {
-                        ids.Add(await api.GetMovieIdByTitle(title));
-                    }
-                    return ids;
-                });
-
-                for (int i = 0; i < originalTitles.Count; i++)
-                {
-                    searchResults.Add(new Movie
-                        {
-                            Id = movieIds[i],
-                            Title = originalTitles[i],
-                            VoteCount = voteCounts[i]
-                        });
-                }
+                var movieIds = await GetMovieIds(originalTitles);
+                searchResults = PopulateSearchResults(originalTitles, voteCounts, movieIds);
                 StateHasChanged();
             });
     }
 
-    public void Dispose()
+    private async Task<List<int>> GetMovieIds(List<string> titles)
     {
-        subscription?.Dispose();
+        var movieIds = new List<int>();
+        foreach (var title in titles)
+        {
+            movieIds.Add(await api.GetMovieIdByTitle(title));
+        }
+        return movieIds;
     }
+    private List<Movie> PopulateSearchResults(List<string> originalTitles, List<int> voteCounts, List<int> movieIds) =>
+        originalTitles.Zip(voteCounts, (title, count) => new Movie
+        {
+            Id = movieIds[originalTitles.IndexOf(title)],
+            Title = title,
+            VoteCount = count
+        }).ToList();
+
+    private void ClearSearchResults() =>
+        searchResults.Clear();
+
+    public void Dispose() =>
+        subscription?.Dispose();
 }

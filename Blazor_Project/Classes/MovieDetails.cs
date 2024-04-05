@@ -4,8 +4,6 @@ namespace Blazor_Project.Classes
 {
     public class MovieDetails
     {
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
         [JsonPropertyName("adult")]
         public bool Adult { get; set; }
         [JsonPropertyName("original_language")]

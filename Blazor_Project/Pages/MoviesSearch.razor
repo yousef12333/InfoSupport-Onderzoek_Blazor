@@ -22,15 +22,14 @@
 
     private async Task HandleTyping(ChangeEventArgs e)
     {
-        searchTerm = e.Value.ToString().Trim();
-        if (searchTerm.Length >= 3)
-        {
-            await SearchMovies();
-        }
-        else
+        searchTerm = e.Value?.ToString()?.Trim() ?? string.Empty;
+        if (searchTerm.Length < 3)
         {
             searchResults.Clear();
+            return;
         }
+
+        await SearchMovies();
     }
 
     private async Task SearchMovies()
