@@ -9,7 +9,7 @@ namespace Tests
 {
     public class FunctionalTests  : IDisposable
     {
-        
+       
         private readonly string _websiteURL;
         private readonly EdgeDriver _driver;
 
@@ -171,11 +171,65 @@ namespace Tests
 
             Assert.DoesNotContain("This field is required", _driver.PageSource);
         }
-        
+        [Fact, Trait("Category", "FunctionalTest")]
+        public void NavigateToMoviesSearchPage()
+        {
+            _driver.Navigate().GoToUrl(_websiteURL + "movies");
+            var pageTitle = _driver.Title;
+            Assert.Equal("Blazor_Project", pageTitle); 
+        }
+        [Fact, Trait("Category", "FunctionalTest")]
+        public void SearchMoviesWithValidSearchTerm_PopulatesSearchResults()
+        {
+            _driver.Navigate().GoToUrl(_websiteURL + "movies");
+
+            var inputElement = _driver.FindElement(By.CssSelector(".MoviesSearch__input"));
+            inputElement.SendKeys("Avengers");
+            var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
+            wait.Until(driver => driver.FindElements(By.CssSelector(".MoviesSearch__list-group-item")).Count > 0);
+
+            var searchResults = _driver.FindElements(By.CssSelector(".MoviesSearch__list-group-item"));
+            Assert.NotEmpty(searchResults);
+        }
+        [Fact, Trait("Category", "FunctionalTest")]
+        public void SearchMoviesWithInvalidSearchTerm_DoesNotPopulateSearchResults()
+        {
+            _driver.Navigate().GoToUrl(_websiteURL + "movies");
+
+            var inputElement = _driver.FindElement(By.CssSelector(".MoviesSearch__input"));
+            inputElement.SendKeys("A");
+            var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
+            wait.Until(driver => driver.FindElements(By.CssSelector(".MoviesSearch__list-group-item")).Count == 0);
+
+            var searchResults = _driver.FindElements(By.CssSelector(".MoviesSearch__list-group-item"));
+            Assert.Empty(searchResults);
+        }
+        [Fact, Trait("Category", "UITest")]
+        public void VerifySearchInputFieldIsPresent()
+        {
+            _driver.Navigate().GoToUrl(_websiteURL + "movies");
+            var inputElement = _driver.FindElement(By.CssSelector(".MoviesSearch__input"));
+            Assert.NotNull(inputElement);
+        }
+        [Fact, Trait("Category", "UITest")]
+        public void VerifySearchResultsDisplayCorrectly()
+        {
+            _driver.Navigate().GoToUrl(_websiteURL + "movies");
+
+            var inputElement = _driver.FindElement(By.CssSelector(".MoviesSearch__input"));
+            inputElement.SendKeys("Avengers");
+
+            var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
+            wait.Until(driver => driver.FindElements(By.CssSelector(".MoviesSearch__list-group-item")).Count > 0);
+
+            var searchResults = _driver.FindElements(By.CssSelector(".MoviesSearch__list-group-item"));
+            Assert.NotEmpty(searchResults);
+
+        }
         public void Dispose()
         {
             _driver.Dispose();
         }
         
-    }
+}
 }

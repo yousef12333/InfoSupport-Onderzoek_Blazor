@@ -27,8 +27,15 @@
     private string searchTerm = string.Empty;
     private List<Movie> searchResults = new List<Movie>();
     private API api = new API();
+    public string SearchTerm
+    {
+        get { return searchTerm; }
+        set { searchTerm = value; }
+    }
+    public IDisposable Subscription => subscription;
 
-    private async Task HandleTyping(ChangeEventArgs e)
+
+    public async Task HandleTyping(ChangeEventArgs e)
     {
         searchTerm = e.Value.ToString().Trim();
         if (searchTerm.Length >= 3)
@@ -41,7 +48,7 @@
         }
     }
 
-    private async Task SearchMovies()
+    public async Task SearchMovies()
     {
         subscription?.Dispose();
         subscription = api.Search(searchTerm)
@@ -54,7 +61,7 @@
             });
     }
 
-    private async Task<List<int>> GetMovieIds(List<string> titles)
+    public async Task<List<int>> GetMovieIds(List<string> titles)
     {
         var movieIds = new List<int>();
         foreach (var title in titles)
@@ -63,7 +70,7 @@
         }
         return movieIds;
     }
-    private List<Movie> PopulateSearchResults(List<string> originalTitles, List<int> voteCounts, List<int> movieIds) =>
+    public List<Movie> PopulateSearchResults(List<string> originalTitles, List<int> voteCounts, List<int> movieIds) =>
         originalTitles.Zip(voteCounts, (title, count) => new Movie
         {
             Id = movieIds[originalTitles.IndexOf(title)],
@@ -71,7 +78,7 @@
             VoteCount = count
         }).ToList();
 
-    private void ClearSearchResults() =>
+    public void ClearSearchResults() =>
         searchResults.Clear();
 
     public void Dispose() =>

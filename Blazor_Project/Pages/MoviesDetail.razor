@@ -48,6 +48,11 @@ else
     private MovieDetails selectedMovieDetails;
     private API api = new API();
 
+    public MovieDetails SelectedMovieDetails
+    {
+        get { return selectedMovieDetails; }
+        set { selectedMovieDetails = value; }
+    }
     protected override async Task OnInitializedAsync()
     {
         if (!string.IsNullOrEmpty(MovieId))

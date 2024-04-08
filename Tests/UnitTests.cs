@@ -3,6 +3,9 @@ using Blazor_Project.Services;
 using System.Reflection;
 using Blazor_Project.Pages;
 using Blazor_Project.Classes;
+using Microsoft.AspNetCore.Components;
+using System.Reactive.Linq;
+using Moq;
 
 namespace Tests
 {
@@ -341,6 +344,174 @@ namespace Tests
 
             Assert.DoesNotContain("<select", cut.Markup);
         }
+        //movies functionality with rx.NET and external API
+        [Theory]
+        [InlineData("!@#$%^&*()_+{}[]:;<>,.?~-")]
+        [InlineData("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")]
+        [InlineData("0123456789")]
+        [InlineData("!@#abcDEF123")]
+        public void FuzzTest_Movies(string searchTerm)
+        {
+            var page = RenderComponent<Movies>();
+            page.Find("input.MoviesSearch__input").Change(searchTerm);
+            Assert.Equal(searchTerm, page.Find("input.MoviesSearch__input").GetAttribute("value"));
+        }
 
+        [Fact]
+        public void DestructionTest_Movies_SearchTermIsNull_ClearsSearchResults()
+        {
+            var page = RenderComponent<Movies>();
+            page.Find("input.MoviesSearch__input").Change(""); 
+            Assert.Empty(page.FindAll(".MoviesSearch__list-group-item"));
+        }
+        [Theory]
+        [InlineData("")]
+        [InlineData(null)]
+        [InlineData("!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123!@#$%^&*()_+{}[]:;<>,.?~-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#abcDEF123")]
+        public void BoundaryValueTest_Movies_EmptySearchTerm_ClearsSearchResults(string searchTerm)
+        {
+            var page = RenderComponent<Movies>();
+            page.Find("input.MoviesSearch__input").Change(searchTerm);
+            Assert.Empty(page.FindAll(".MoviesSearch__list-group-item"));
+        }
+
+        [Theory]
+        [InlineData("Youssef")]
+        [InlineData("!@#$%^&*()_+{}[]:;<>,.?~-")]
+        [InlineData("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")]
+        [InlineData("0123456789")]
+        [InlineData("!@#abcDEF123")]
+        [InlineData("Test123opp123")]
+        [InlineData("Loop34nOOp43")]
+        [InlineData("ZER£%¨*¨ZER£%¨*¨ZER£%¨*¨")]
+        public void DataDrivenTest_Movies_ValidSearchTerm_DoesNotContainError(string searchTerm)
+        {
+            var page = RenderComponent<Movies>();
+            page.Find("input.MoviesSearch__input").Change(searchTerm);
+            Assert.DoesNotContain("<span class=\"has-error\">This field is required</span>", page.Markup);
+        }
+        [Fact]
+        public async Task SearchEmpty_UpdatesSearchResults()
+        {
+            var api = new API(); 
+            var moviesComponent = RenderComponent<Movies>();
+            var searchTerm = "Fight club";
+            moviesComponent.Find("input.MoviesSearch__input").Change(searchTerm);
+            await Task.Delay(1000); 
+            Assert.Equal(0, moviesComponent.FindAll(".MoviesSearch__list-group-item").Count());
+        }
+
+        [Fact]
+        public async Task ClearSearchResults_ResetsSearchResults()
+        {
+            var moviesComponent = RenderComponent<Movies>();
+            moviesComponent.Find("input.MoviesSearch__input").Change("Avengers");
+            await Task.Delay(1000); 
+            moviesComponent.InvokeAsync(() => moviesComponent.Instance.ClearSearchResults());
+            Assert.Empty(moviesComponent.FindAll(".MoviesSearch__list-group-item"));
+        }
+
+        [Theory]
+        [InlineData("Avengers")]
+        [InlineData("Iron Man")]
+        public async Task HandleTyping_TriggerSearch(string searchTerm)
+        {
+            var moviesComponent = RenderComponent<Movies>();
+            moviesComponent.Find("input.MoviesSearch__input").Change(searchTerm);
+            Assert.Equal(searchTerm, moviesComponent.Instance.SearchTerm);
+        }
+
+      
+
+        [Fact]
+        public async Task GetMovieIds_ReturnsValidMovieIds()
+        {
+            var moviesComponent = RenderComponent<Movies>();
+            var titles = new List<string> { "Avengers", "Iron Man" };
+            var movieIds = await moviesComponent.InvokeAsync(() => moviesComponent.Instance.GetMovieIds(titles));
+            Assert.Equal(titles.Count, movieIds.Count);
+        }
+       
+        [Fact]
+        public async Task SearchMovies_EmptySearchTerm_DoesNotCallAPI()
+        {
+            var moviesComponent = RenderComponent<Movies>();
+            var initialSearchResultsCount = moviesComponent.FindAll(".MoviesSearch__list-group-item").Count;
+            moviesComponent.Instance.SearchTerm = ""; 
+            await Task.Delay(1000); 
+            Assert.Equal(initialSearchResultsCount, moviesComponent.FindAll(".MoviesSearch__list-group-item").Count);
+        }
+
+        [Fact]
+        public async Task SearchMovies_LongSearchTerm_DoesNotCallAPI()
+        {
+            var moviesComponent = RenderComponent<Movies>();
+            var initialSearchResultsCount = moviesComponent.FindAll(".MoviesSearch__list-group-item").Count;
+            moviesComponent.Instance.SearchTerm = "Interstellar"; 
+            await Task.Delay(1000);
+            Assert.Equal(initialSearchResultsCount, moviesComponent.FindAll(".MoviesSearch__list-group-item").Count);
+        }
+
+        [Fact]
+        public async Task HandleTyping_SearchTermLengthLessThanThree_ClearsSearchResults()
+        {
+            var moviesComponent = RenderComponent<Movies>();
+            moviesComponent.Instance.SearchTerm = "Star Wars"; 
+            moviesComponent.Instance.HandleTyping(new ChangeEventArgs { Value = "st" }); 
+            Assert.Empty(moviesComponent.FindAll(".MoviesSearch__list-group-item"));
+        }
+        [Fact]
+        public async Task GetMovieDetails_ReturnsMovieDetails()
+        {
+            var api = new API();
+            var movieId = "123";
+            var movieDetails = await api.GetMovieDetails(movieId);
+            Assert.NotEmpty(movieDetails.Title);
+        }
+
+        [Fact]
+        public async Task GetMovieIdByTitle_ReturnsValidMovieId()
+        {
+            var api = new API();
+            var title = "Inception";
+            var movieId = await api.GetMovieIdByTitle(title);
+            Assert.NotEqual(-1, movieId);
+        }
+
+        [Fact]
+        public async Task GetMovieIdByTitle_ReturnsMinusOneOnNotFound()
+        {
+            var api = new API();
+            var title = "Invalid Movie Title";
+            var movieId = await api.GetMovieIdByTitle(title);
+            Assert.Equal(-1, movieId);
+        }
+
+        [Fact]
+        public async Task Search_ReturnsValidSearchResults()
+        {
+            var api = new API();
+            var searchTerm = "Interstellar";
+            var searchResult = await api.Search(searchTerm);
+            Assert.NotEmpty(searchResult.Item1);
+            Assert.NotEmpty(searchResult.Item2);
+            Assert.Equal(searchResult.Item1.Count, searchResult.Item2.Count);
+        }
+
+        [Fact]
+        public async Task Search_ReturnsEmptyResultsForInvalidSearchTerm()
+        {
+            var api = new API();
+            var searchTerm = "Invalid Search Term";
+            var searchResult = await api.Search(searchTerm);
+            Assert.Empty(searchResult.Item1);
+            Assert.Empty(searchResult.Item2);
+        }
+        [Fact]
+        public async Task MoviesDetail_ShowsLoadingWhenNoMovieIdProvided()
+        {
+            var cut = RenderComponent<MoviesDetail>();
+            cut.MarkupMatches("<link rel=\"stylesheet\" href=\"css/MoviesDetail.css\">\r\n    <h1>Loading...</h1>");
+        }
     }
 }

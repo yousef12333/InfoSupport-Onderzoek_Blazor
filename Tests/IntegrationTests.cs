@@ -11,6 +11,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Microsoft.JSInterop;
 using Blazor_Project.Classes;
+using Moq;
+using System.Reactive.Linq;
 
 namespace Tests
 {
@@ -154,5 +156,26 @@ namespace Tests
             Assert.Contains("Youssef", component.Markup);
             Assert.Contains("Password", component.Markup);
         }
+        [Fact]
+        public async Task SearchMovies_WithEmptySearchTerm_ClearsSearchResults()
+        {
+            var cut = RenderComponent<MoviesSearch>();
+            var inputElement = cut.Find(".MoviesSearch__input");
+            inputElement.Change(""); 
+            await Task.Delay(1000);
+            var listItems = cut.FindAll(".MoviesSearch__list-group-item");
+            Assert.Empty(listItems);
+        }
+        [Fact]
+        public async Task SearchMovies_WithInvalidSearchTerm_DoesNotFetchData()
+        {
+            var cut = RenderComponent<MoviesSearch>();
+            var inputElement = cut.Find(".MoviesSearch__input");
+            inputElement.Change("A"); 
+            await Task.Delay(1000); 
+            var listItems = cut.FindAll(".MoviesSearch__list-group-item");
+            Assert.Empty(listItems);
+        }
+        
     }
 }

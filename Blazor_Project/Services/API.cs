@@ -14,7 +14,7 @@ namespace Blazor_Project.Services
         public string BaseUri = "https://api.themoviedb.org/3/";
         public string ImagesUri = "https://image.tmdb.org/t/p/";
 
-        public IObservable<MovieDetails> GetMovieDetails(string movieId) => Observable.FromAsync(() => GetMovieDetailsAsync(movieId));
+        public virtual IObservable<MovieDetails> GetMovieDetails(string movieId) => Observable.FromAsync(() => GetMovieDetailsAsync(movieId));
         public IObservable<int> GetMovieIdByTitle(string title) => Observable.FromAsync(() => GetMovieIdByTitleAsync(title));
         public IObservable<(List<string>, List<int>)> Search(string searchTerm) => Observable.FromAsync(() => SearchAsync(searchTerm));
        
