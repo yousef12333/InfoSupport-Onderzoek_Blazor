@@ -171,7 +171,7 @@ namespace Tests
 
             Assert.DoesNotContain("This field is required", _driver.PageSource);
         }
-        [Fact, Trait("Category", "FunctionalTest")]
+       git [Fact, Trait("Category", "FunctionalTest")]
         public void NavigateToMoviesSearchPage()
         {
             _driver.Navigate().GoToUrl(_websiteURL + "movies");
