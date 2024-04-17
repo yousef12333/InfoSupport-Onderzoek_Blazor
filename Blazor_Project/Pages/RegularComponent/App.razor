@@ -1,0 +1,203 @@
+﻿@page "/math"
+@using Blazor_Project.Classes
+@using Blazor_Project.Pages.RegularComponent
+<link href='https://fonts.googleapis.com/css?family=Fredericka the Great' rel='stylesheet'>
+<link rel="stylesheet" href="css/Math.css">
+
+<div class="wrapper">
+
+    @if (!GameStarted)
+    {
+        <h1>Math-o-Matic</h1>
+        <StartButton OnClick="StartGame" />
+    }
+    else
+    {
+        <h1>Math-o-Matic</h1>
+        <form @onsubmit="HandleSubmit">
+            <label>
+                <div class="problem-container">@MathProblem.String</div>
+                <input type="number" placeholder="?" @bind="CurrentResponse" class="@InputClass" required />
+            </label>
+
+            <div class="message-container @(MessageClass)">
+                @if (RecentStatusChange)
+                {
+                    @if (AnswerStatus == "Correct!")
+                    {
+                        <span class="correct">@AnswerStatus</span>
+                    }
+                    else if (AnswerStatus == "Too Low.")
+                    {
+                        <span class="too-low">@AnswerStatus</span>
+                    }
+                    else if (AnswerStatus == "Too High.")
+                    {
+                        <span class="too-high">@AnswerStatus</span>
+                    }
+                }
+            </div>
+
+            <div class="button-container">
+                @if (GameStarted)
+                {
+                    <GetNewProblemButton Disabled="@RecentCorrectAnswer" OnClick="GetNewProblem" />
+                    <CheckAnswerButton Disabled="@RecentCorrectAnswer" OnClick="HandleSubmit" />
+                }
+                else
+                {
+                    <StartButton OnClick="StartGame" />
+                }
+            </div>
+        </form>
+    }
+</div>
+
+@code {
+    private Timer Timer;
+    private MathProblem MathProblem { get; set; }
+    private string CurrentResponse { get; set; }
+    private bool RecentCorrectAnswer { get; set; }
+    private bool RecentStatusChange { get; set; }
+    private string AnswerStatus { get; set; }
+    private bool GameStarted { get; set; }
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        GetNewProblem();
+    }
+
+    private void GetNewProblem()
+    {
+        InvokeAsync(() =>
+        {
+            AnswerStatus = "";
+            CurrentResponse = "";
+            MathProblem = GetRandomProblem();
+            RecentCorrectAnswer = false; 
+            StateHasChanged();
+        });
+    }
+    private void FalseAnswer()
+    {
+        InvokeAsync(() =>
+        {
+            AnswerStatus = "";
+            CurrentResponse = "";
+            RecentCorrectAnswer = false;
+            StateHasChanged();
+        });
+    }
+
+    private MathProblem GetRandomProblem()
+    {
+        var firstNum = GetRandomNumber(10);
+        var secondNum = GetRandomNumber(10);
+        var operatorChar = GetRandomOperator();
+        var mathProblemString = $"{firstNum} {operatorChar} {secondNum} =";
+        var correctAnswer = GetCorrectAnswer(firstNum, secondNum, operatorChar);
+        return new MathProblem { String = mathProblemString, Answer = correctAnswer };
+    }
+
+    private int GetCorrectAnswer(int firstNum, int secondNum, char operatorChar)
+    {
+        if (operatorChar == '+')
+        {
+            return firstNum + secondNum;
+        }
+        else if (operatorChar == '-')
+        {
+            return firstNum - secondNum;
+        }
+        else if (operatorChar == 'x')
+        {
+            return firstNum * secondNum;
+        }
+        else if (operatorChar == '÷')
+        {
+            if (secondNum != 0)
+            {
+                return firstNum / secondNum;
+            }
+            else
+            {
+                return int.MaxValue;
+            }
+        }
+        else
+        {
+            throw new ArgumentException("Invalid operator");
+        }
+    }
+
+    private string GetAnswerStatus(double num)
+    {
+        var mathProblemAnswer = MathProblem.Answer;
+        if (num < mathProblemAnswer && !double.IsNaN(num)) 
+        {
+            return "Too Low.";
+        }
+        else if (num > mathProblemAnswer)
+        {
+            return "Too High.";
+        }
+        else if (num == mathProblemAnswer)
+        {
+            return "Correct!";
+        }
+        else 
+        {
+            return "";
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        var userAnswer = double.NaN;
+        if (!string.IsNullOrEmpty(CurrentResponse))
+        {
+            userAnswer = double.Parse(CurrentResponse);
+        }
+
+        AnswerStatus = GetAnswerStatus(userAnswer);
+        RecentStatusChange = true;
+
+        if (MathProblem.Answer == userAnswer)
+        {
+            RecentCorrectAnswer = true;
+            if (Timer != null)
+            {
+                Timer.Dispose();
+            }
+            Timer = new Timer(_ => GetNewProblem(), null, 3000, Timeout.Infinite);
+        }
+        else
+        {
+            if (Timer != null)
+            {
+                Timer.Dispose();
+            }
+            Timer = new Timer(_ => FalseAnswer(), null, 3000, Timeout.Infinite);
+        }
+    }
+    private void StartGame()
+    {
+        GameStarted = true;
+    }
+
+    private string MessageClass => AnswerStatus.ToLower().Replace(" ", "-").TrimEnd('-');
+
+    private string InputClass => GameStarted ? "" : "hidden ";
+
+    private int GetRandomNumber(int maximum)
+    {
+        return new Random().Next(maximum + 1);
+    }
+
+    private char GetRandomOperator()
+    {
+        var operators = new char[] { '+', '-', 'x', '÷' };
+        return operators[new Random().Next(operators.Length)];
+    }
+}

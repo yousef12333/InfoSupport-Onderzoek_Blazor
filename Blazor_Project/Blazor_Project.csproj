@@ -15,4 +15,20 @@
     <PackageReference Include="System.Reactive.Linq" Version="6.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Pages\API\" />
+    <Folder Include="Pages\Animations\" />
+    <Folder Include="Pages\Forms\" />
+    <Folder Include="Pages\Observables\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\css\images\calculator.png" />
+    <None Include="wwwroot\css\images\chalkboard-background.jpg" />
+    <None Include="wwwroot\css\images\image.png" />
+    <None Include="wwwroot\css\images\math-background.jpg" />
+    <None Include="wwwroot\css\images\wood-border.jpg" />
+    <None Include="wwwroot\css\Math.css" />
+  </ItemGroup>
+
 </Project>

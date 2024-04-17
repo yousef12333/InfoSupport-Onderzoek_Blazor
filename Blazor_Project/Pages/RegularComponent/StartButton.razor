@@ -1,0 +1,16 @@
+﻿<link rel="stylesheet" href="css/Math.css">
+<link href='https://fonts.googleapis.com/css?family=Fredericka the Great' rel='stylesheet'>
+
+<button class="start-button" @onclick="HandleClick">
+    <span>Start</span>
+</button>
+
+@code {
+    [Parameter]
+    public EventCallback OnClick { get; set; }
+
+    private async Task HandleClick()
+    {
+        await OnClick.InvokeAsync();
+    }
+}
