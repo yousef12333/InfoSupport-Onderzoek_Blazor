@@ -20,20 +20,18 @@
             </label>
 
             <div class="message-container @(MessageClass)">
-                @if (RecentStatusChange)
+                @switch (AnswerStatus)
                 {
-                    @if (AnswerStatus == "Correct!")
-                    {
+                    case "Correct!" when RecentStatusChange:
                         <span class="correct">@AnswerStatus</span>
-                    }
-                    else if (AnswerStatus == "Too Low.")
-                    {
+                        break;
+                    case "Too Low." when RecentStatusChange:
                         <span class="too-low">@AnswerStatus</span>
-                    }
-                    else if (AnswerStatus == "Too High.")
-                    {
+                        break;
+                    case "Too High." when RecentStatusChange:
                         <span class="too-high">@AnswerStatus</span>
-                    }
+                        break;
+                }
                 }
             </div>
 
@@ -67,7 +65,7 @@
         GetNewProblem();
     }
 
-    private void GetNewProblem()
+    public void GetNewProblem()
     {
         InvokeAsync(() =>
         {
@@ -78,7 +76,7 @@
             StateHasChanged();
         });
     }
-    private void FalseAnswer()
+    public void FalseAnswer()
     {
         InvokeAsync(() =>
         {
@@ -89,7 +87,7 @@
         });
     }
 
-    private MathProblem GetRandomProblem()
+    public MathProblem GetRandomProblem()
     {
         var firstNum = GetRandomNumber(10);
         var secondNum = GetRandomNumber(10);
@@ -99,65 +97,33 @@
         return new MathProblem { String = mathProblemString, Answer = correctAnswer };
     }
 
-    private int GetCorrectAnswer(int firstNum, int secondNum, char operatorChar)
+    public int GetCorrectAnswer(int firstNum, int secondNum, char operatorChar)
     {
-        if (operatorChar == '+')
+        switch (operatorChar)
         {
-            return firstNum + secondNum;
-        }
-        else if (operatorChar == '-')
-        {
-            return firstNum - secondNum;
-        }
-        else if (operatorChar == 'x')
-        {
-            return firstNum * secondNum;
-        }
-        else if (operatorChar == '÷')
-        {
-            if (secondNum != 0)
-            {
-                return firstNum / secondNum;
-            }
-            else
-            {
-                return int.MaxValue;
-            }
-        }
-        else
-        {
-            throw new ArgumentException("Invalid operator");
+            case '+': return firstNum + secondNum;
+            case '-': return firstNum - secondNum;
+            case 'x': return firstNum * secondNum;
+            case '÷': return (secondNum != 0) ? (firstNum / secondNum) : int.MaxValue;
+            default: throw new ArgumentException("Invalid operator");
         }
     }
 
-    private string GetAnswerStatus(double num)
+    public string GetAnswerStatus(double num)
     {
         var mathProblemAnswer = MathProblem.Answer;
-        if (num < mathProblemAnswer && !double.IsNaN(num)) 
+        return num.CompareTo(mathProblemAnswer) switch
         {
-            return "Too Low.";
-        }
-        else if (num > mathProblemAnswer)
-        {
-            return "Too High.";
-        }
-        else if (num == mathProblemAnswer)
-        {
-            return "Correct!";
-        }
-        else 
-        {
-            return "";
-        }
+            -1 when !double.IsNaN(num) => "Too Low.",
+            1 => "Too High.",
+            0 => "Correct!",
+            _ => "",
+        };
     }
 
-    private async Task HandleSubmit()
+    public void HandleSubmit()
     {
-        var userAnswer = double.NaN;
-        if (!string.IsNullOrEmpty(CurrentResponse))
-        {
-            userAnswer = double.Parse(CurrentResponse);
-        }
+        var userAnswer = double.TryParse(CurrentResponse, out var answer) ? answer : double.NaN;
 
         AnswerStatus = GetAnswerStatus(userAnswer);
         RecentStatusChange = true;
@@ -165,36 +131,30 @@
         if (MathProblem.Answer == userAnswer)
         {
             RecentCorrectAnswer = true;
-            if (Timer != null)
-            {
-                Timer.Dispose();
-            }
+            Timer?.Dispose();
             Timer = new Timer(_ => GetNewProblem(), null, 3000, Timeout.Infinite);
         }
         else
         {
-            if (Timer != null)
-            {
-                Timer.Dispose();
-            }
+            Timer?.Dispose();
             Timer = new Timer(_ => FalseAnswer(), null, 3000, Timeout.Infinite);
         }
     }
-    private void StartGame()
+    public void StartGame()
     {
         GameStarted = true;
     }
 
-    private string MessageClass => AnswerStatus.ToLower().Replace(" ", "-").TrimEnd('-');
+    public string MessageClass => AnswerStatus.ToLower().Replace(" ", "-").TrimEnd('-');
 
-    private string InputClass => GameStarted ? "" : "hidden ";
+    public string InputClass => GameStarted ? "" : "hidden ";
 
-    private int GetRandomNumber(int maximum)
+    public int GetRandomNumber(int maximum)
     {
         return new Random().Next(maximum + 1);
     }
 
-    private char GetRandomOperator()
+    public char GetRandomOperator()
     {
         var operators = new char[] { '+', '-', 'x', '÷' };
         return operators[new Random().Next(operators.Length)];
