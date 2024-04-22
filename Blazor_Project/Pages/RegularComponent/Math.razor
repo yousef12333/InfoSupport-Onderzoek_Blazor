@@ -52,12 +52,13 @@
 
 @code {
     private Timer Timer;
-    private MathProblem MathProblem { get; set; }
-    private string CurrentResponse { get; set; }
-    private bool RecentCorrectAnswer { get; set; }
-    private bool RecentStatusChange { get; set; }
-    private string AnswerStatus { get; set; }
-    private bool GameStarted { get; set; }
+    [Parameter]
+    public MathProblem MathProblem { get; set; }
+    public string CurrentResponse { get; set; }
+    public bool RecentCorrectAnswer { get; set; }
+    public bool RecentStatusChange { get; set; }
+    public string AnswerStatus { get; set; }
+    public bool GameStarted { get; set; }
 
     protected override void OnInitialized()
     {

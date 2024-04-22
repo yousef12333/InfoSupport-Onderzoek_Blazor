@@ -5,6 +5,7 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Support.UI;
 
+
 namespace Tests
 {
     public class FunctionalTests  : IDisposable
@@ -20,6 +21,7 @@ namespace Tests
             _driver.Manage().Window.Maximize();
             _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(30);
         }
+        
         
         [Fact, Trait("Category", "FunctionalTest")]
         public void NavigateToPasswordChecker()
@@ -226,10 +228,76 @@ namespace Tests
             Assert.NotEmpty(searchResults);
 
         }
+        
+        //math
+
+        [Fact, Trait("Category", "FunctionalTest")]
+        public void NavigateToMathPage()
+        {
+            _driver.Navigate().GoToUrl(_websiteURL + "math");
+            var pageTitle = _driver.Title;
+            Assert.Equal("Blazor_Project", pageTitle);
+        }
+        [Fact, Trait("Category", "UITest")]
+        public void MathPageDisplaysCorrectly()
+        {
+            _driver.Navigate().GoToUrl(_websiteURL + "math");
+
+            var mathTitle = _driver.FindElement(By.TagName("h1")).Text;
+
+            Assert.Equal("Math-o-Matic", mathTitle);
+        }
+        [Fact, Trait("Category", "UITest")]
+        public void StartMathGameAndCheckAnswerCorrectly()
+        {
+            _driver.Navigate().GoToUrl(_websiteURL + "math");
+
+            var startButton = _driver.FindElement(By.CssSelector(".start-button"));
+            startButton.Click();
+
+            var inputField = _driver.FindElement(By.CssSelector("input[type=\"number\"]"));
+
+            var attempts = 0;
+            while (attempts < 2)
+            {
+                try
+                {
+                    inputField.SendKeys("9999");
+                    inputField.SendKeys(Keys.Return);
+                    break;
+                }
+                catch (StaleElementReferenceException)
+                {
+                    inputField = _driver.FindElement(By.CssSelector("input[type=\"number\"]"));
+                }
+                attempts++;
+            }
+
+            var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
+            var messageContainer = wait.Until(driver =>
+            {
+                var element = _driver.FindElement(By.ClassName("message-container"));
+                return element.Displayed && !string.IsNullOrEmpty(element.Text) ? element : null;
+            });
+
+            Assert.NotEmpty(messageContainer.Text);
+        }
+        [Fact, Trait("Category", "UITest")]
+        public void CheckInputFieldVisibilityWhenGameStarted()
+        {
+            _driver.Navigate().GoToUrl(_websiteURL + "math");
+
+            var startButton = _driver.FindElement(By.CssSelector(".start-button"));
+            startButton.Click();
+
+            var inputField = _driver.FindElement(By.CssSelector("input[type=\"number\"]"));
+            Assert.True(inputField.Displayed);
+        }
         public void Dispose()
         {
             _driver.Dispose();
         }
-        
+       
 }
 }
+ 

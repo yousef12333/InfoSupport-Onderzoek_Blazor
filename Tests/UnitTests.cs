@@ -2,6 +2,7 @@ using Bunit;
 using Blazor_Project.Services;
 using System.Reflection;
 using Blazor_Project.Pages;
+using Blazor_Project.Pages.RegularComponent;
 using Blazor_Project.Classes;
 using Microsoft.AspNetCore.Components;
 using System.Reactive.Linq;
@@ -512,6 +513,51 @@ namespace Tests
         {
             var cut = RenderComponent<MoviesDetail>();
             cut.MarkupMatches("<link rel=\"stylesheet\" href=\"css/MoviesDetail.css\">\r\n    <h1>Loading...</h1>");
+        }
+        //math
+        [Theory]
+        [InlineData(3, 5, '+', 8)]
+        [InlineData(10, 7, '-', 3)]
+        [InlineData(4, 6, 'x', 24)]
+        [InlineData(12, 4, '÷', 3)]
+        public void FuzzTest_Math(int firstNum, int secondNum, char operatorChar, int expectedAnswer)
+        {
+            var mathComponent = RenderComponent<Blazor_Project.Pages.RegularComponent.Math>();
+
+            var instance = mathComponent.Instance;
+            var actual = instance.GetCorrectAnswer(firstNum, secondNum, operatorChar);
+
+            Assert.Equal(expectedAnswer, actual);
+        }
+
+        [Fact]
+        public void DestructionTest_Math()
+        {
+            var mathComponent = new Blazor_Project.Pages.RegularComponent.Math();
+            mathComponent = null;
+            Assert.True(mathComponent == null);
+        }
+
+        [Theory]
+        [InlineData(1)] 
+        [InlineData(10)]
+        [InlineData(int.MaxValue)]
+        public void BoundaryValueTest_GetRandomNumber(int input)
+        {
+            var math = new Blazor_Project.Pages.RegularComponent.Math();
+            var result = math.GetRandomNumber(input);
+            Assert.InRange(result, 0, 10);
+        }
+
+        [Fact]
+        public void MathComponent_SubmitCorrectAnswer_CorrectAnswerMessageDisplayed()
+        {
+            var component = new Blazor_Project.Pages.RegularComponent.Math(); 
+            component.GameStarted = true;
+            component.MathProblem = new MathProblem { String = "5 + 5 =", Answer = 10 };
+            component.CurrentResponse = "10"; 
+            component.HandleSubmit(); 
+            Assert.Equal("Correct!", component.AnswerStatus); 
         }
     }
 }

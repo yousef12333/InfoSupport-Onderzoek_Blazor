@@ -176,6 +176,24 @@ namespace Tests
             var listItems = cut.FindAll(".MoviesSearch__list-group-item");
             Assert.Empty(listItems);
         }
-        
+         [Fact]
+        public async Task MathComponent_Should_Start_Game_And_Check_One_Outcome_Valid()
+        {
+            using var ctx = new TestContext();
+            var cut = ctx.RenderComponent<Blazor_Project.Pages.RegularComponent.Math>();
+            cut.Find("button").Click();
+            Assert.NotNull(cut.Find(".problem-container"));
+            cut.Find("input").Change("42");
+            cut.Find("form").Submit();
+            await Task.Delay(500);
+            var messageContainer = cut.Find(".message-container").TextContent;
+            var tooLowCount = messageContainer.Contains("Too Low.") ? 1 : 0;
+            var tooHighCount = messageContainer.Contains("Too High.") ? 1 : 0;
+            var correctCount = messageContainer.Contains("Correct!") ? 1 : 0;
+            
+            Assert.Equal(1, tooLowCount + tooHighCount + correctCount);
+        }
+
+
     }
 }
