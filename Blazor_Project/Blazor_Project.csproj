@@ -17,7 +17,6 @@
 
   <ItemGroup>
     <Folder Include="Pages\API\" />
-    <Folder Include="Pages\Animations\" />
     <Folder Include="Pages\Forms\" />
     <Folder Include="Pages\Observables\" />
   </ItemGroup>

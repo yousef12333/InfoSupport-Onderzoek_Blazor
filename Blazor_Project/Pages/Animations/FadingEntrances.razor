@@ -1,0 +1,39 @@
+﻿@page "/fading-entrances"
+
+<div class="container">
+    <div class="animation-buttons">
+        @foreach (var animation in animations)
+        {
+            <button class="animation-button" @onclick="() => ToggleAnimation(animation)">@animation</button>
+        }
+    </div>
+    <div class="target @GetAnimationClass()">
+    </div>
+</div>
+
+@code {
+    string pageHeader = "Fading Entrances";
+
+    string currentAnimation = "";
+
+    string GetAnimationClass()
+    {
+        return currentAnimation == null ? "" : currentAnimation;
+    }
+
+    void ToggleAnimation(string animationName)
+    {
+        if (currentAnimation == animationName)
+        {
+            currentAnimation = "";
+        }
+        else
+        {
+            currentAnimation = animationName;
+        }
+    }
+
+    List<string> animations = new List<string> {
+        "fadeIn", "fadeInDown", "fadeInDownBig", "fadeInLeft", "fadeInLeftBig", "fadeInRight", "fadeInRightBig", "fadeInUp", "fadeInUpBig"
+    };
+}

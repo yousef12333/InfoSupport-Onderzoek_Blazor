@@ -1,0 +1,20 @@
+﻿@page "/animations"
+@using Microsoft.AspNetCore.Components.Web
+
+<div class="sidelist">
+    <header class="header">
+        <h1 class="header__text">@pageTitle</h1>
+    </header>
+    <div class="sidelist__items">
+        <div class="sidelist__item">
+            <a class="item__link" href="/attention-seekers">Attention Seekers</a>
+        </div>
+        <div class="sidelist__item">
+            <a class="item__link" href="/fading-entrances">Fading Entrances</a>
+        </div>
+    </div>
+</div>
+
+@code {
+    string pageTitle = "Blazor Animations";
+}
