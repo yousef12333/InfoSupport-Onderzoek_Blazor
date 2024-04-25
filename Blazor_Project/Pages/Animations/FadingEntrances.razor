@@ -1,6 +1,8 @@
 ﻿@page "/fading-entrances"
+<link rel="stylesheet" href="css/FadingEntrance.css">
 
 <div class="container">
+    <h2>@pageHeader</h2>
     <div class="animation-buttons">
         @foreach (var animation in animations)
         {
@@ -18,7 +20,7 @@
 
     string GetAnimationClass()
     {
-        return currentAnimation == null ? "" : currentAnimation;
+        return currentAnimation == "" ? "" : currentAnimation;
     }
 
     void ToggleAnimation(string animationName)

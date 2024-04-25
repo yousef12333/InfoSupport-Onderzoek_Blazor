@@ -1,6 +1,8 @@
 ﻿@page "/attention-seekers"
+<link rel="stylesheet" href="css/AttentionSeeker.css">
 
 <div class="container">
+    <h2>@pageHeader</h2>
     <div class="animation-buttons">
         @foreach (var animation in animations)
         {
@@ -18,7 +20,7 @@
 
     string GetAnimationClass()
     {
-        return currentAnimation == null ? "" : "is-active";
+        return currentAnimation == null ? "" : currentAnimation;
     }
 
     void ToggleAnimation(string animationName)
