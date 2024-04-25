@@ -1,41 +1,10 @@
 ﻿@page "/attention-seekers"
 <link rel="stylesheet" href="css/AttentionSeeker.css">
 
-<div class="container">
-    <h2>@pageHeader</h2>
-    <div class="animation-buttons">
-        @foreach (var animation in animations)
-        {
-            <button class="animation-button" @onclick="() => ToggleAnimation(animation)">@animation</button>
-        }
-    </div>
-    <div class="target @GetAnimationClass()">
-    </div>
-</div>
+<AnimationPage PageHeader="Attention Seekers" Animations="@attentionSeekersAnimations" />
 
 @code {
-    string pageHeader = "Attention Seekers";
-
-    string currentAnimation = "";
-
-    string GetAnimationClass()
-    {
-        return currentAnimation == null ? "" : currentAnimation;
-    }
-
-    void ToggleAnimation(string animationName)
-    {
-        if (currentAnimation == animationName)
-        {
-            currentAnimation = "";
-        }
-        else
-        {
-            currentAnimation = animationName;
-        }
-    }
-
-    List<string> animations = new List<string> {
+    List<string> attentionSeekersAnimations = new List<string> {
         "bounce", "flash", "heartbeat", "jello", "pulse", "rubberband", "shake", "swing", "tada", "wobble"
     };
 }

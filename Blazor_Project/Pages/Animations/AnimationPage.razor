@@ -1,0 +1,33 @@
+﻿@inherits LayoutComponentBase
+
+<div class="container">
+    <h2>@PageHeader</h2>
+    <div class="animation-buttons">
+        @foreach (var animation in Animations)
+        {
+            <button class="animation-button" @onclick="() => ToggleAnimation(animation)">@animation</button>
+        }
+    </div>
+    <div class="target @GetAnimationClass()">
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string PageHeader { get; set; }
+
+    [Parameter]
+    public List<string> Animations { get; set; }
+
+    string currentAnimation = "";
+
+    string GetAnimationClass()
+    {
+        return currentAnimation;
+    }
+
+    void ToggleAnimation(string animationName)
+    {
+        currentAnimation = currentAnimation == animationName ? "" : animationName;
+    }
+}
