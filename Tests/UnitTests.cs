@@ -7,6 +7,7 @@ using Blazor_Project.Classes;
 using Microsoft.AspNetCore.Components;
 using System.Reactive.Linq;
 using Moq;
+using Blazor_Project.Pages.Animations;
 
 namespace Tests
 {
@@ -559,5 +560,40 @@ namespace Tests
             component.HandleSubmit(); 
             Assert.Equal("Correct!", component.AnswerStatus); 
         }
+        //animations
+        
+        [Fact]
+        public void ToggleAnimation_WithSameAnimationName_TogglesOff()
+        {
+            var component = new AnimationPage();
+            component.Animations = new List<string> { "heartbeat", "pulse" };
+            component.ToggleAnimation("heartbeat");
+            component.ToggleAnimation("heartbeat");
+            var animationClass = component.GetAnimationClass();
+            Assert.Empty(animationClass);
+        }
+
+        [Fact]
+        public void ToggleAnimation_WithInvalidAnimationName_NoChange()
+        {
+            var component = new AnimationPage();
+            component.Animations = new List<string> { "cookie", "biscuit" };
+            component.ToggleAnimation("cookie");
+            var animationClass = component.GetAnimationClass();
+            Assert.Equal("cookie", animationClass); 
+        }
+
+        [Fact]
+        public void ToggleAnimation_WithDifferentAnimationName_TogglesOn()
+        {
+            var component = new AnimationPage();
+            component.Animations = new List<string> { "fadeInDownBig", "fadeInLeftBig" };
+            component.ToggleAnimation("fadeInDownBig");
+            component.ToggleAnimation("fadeInLeftBig");
+            var animationClass = component.GetAnimationClass();
+            Assert.Equal("fadeInLeftBig", animationClass);
+        }
+
+        
     }
 }

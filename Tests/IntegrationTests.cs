@@ -13,6 +13,8 @@ using Microsoft.JSInterop;
 using Blazor_Project.Classes;
 using Moq;
 using System.Reactive.Linq;
+using Blazor_Project.Pages.Animations;
+using Microsoft.AspNetCore.Components;
 
 namespace Tests
 {
@@ -193,7 +195,53 @@ namespace Tests
             
             Assert.Equal(1, tooLowCount + tooHighCount + correctCount);
         }
+        //animations
+        [Fact]
+        public void ClickingAnimationButton_TogglesAnimationClass()
+        {
+            var cut = RenderComponent<AttentionSeekers>();
+            var button = cut.Find(".animation-button"); 
+            button.Click();
+            var targetDiv = cut.Find(".target");
+            Assert.Contains("bounce", targetDiv.Attributes["class"].Value);
+        }
 
+        [Fact]
+        public void AnimationButtons_DisplayCorrectTextAttentionSeekers()
+        {
+            var cut = RenderComponent<AttentionSeekers>();
+            var expectedAnimations = new List<string> { "bounce", "flash", "heartbeat", "jello", "pulse", "rubberband", "shake", "swing", "tada", "wobble" };
+            var buttons = cut.FindAll(".animation-button");
+            Assert.Equal(expectedAnimations.Count, buttons.Count);
+            for (int i = 0; i < expectedAnimations.Count; i++)
+            {
+                Assert.Equal(expectedAnimations[i], buttons[i].TextContent.Trim());
+            }
+        }
+        [Fact]
+        public void AnimationButtons_DisplayCorrectTextFadingEntrances()
+        {
+            var cut = RenderComponent<FadingEntrances>();
+            var expectedAnimations = new List<string> {"fadeIn", "fadeInDown", "fadeInDownBig", "fadeInLeft", "fadeInLeftBig", "fadeInRight", "fadeInRightBig", "fadeInUp", "fadeInUpBig"};
+            var buttons = cut.FindAll(".animation-button");
+            Assert.Equal(expectedAnimations.Count, buttons.Count);
+            for (int i = 0; i < expectedAnimations.Count; i++)
+            {
+                Assert.Equal(expectedAnimations[i], buttons[i].TextContent.Trim());
+            }
+        }
+
+        [Fact]
+        public void PageHeader_DisplayStartingPageHeader()
+        {
+            var expectedPageHeader = "Blazor Animations";
+            var cut = RenderComponent<AnimationPage>(parameters => parameters
+                .Add(p => p.PageHeader, expectedPageHeader) 
+                .Add(p => p.Animations, new List<string>())); 
+            var header = cut.Find("h2");
+            Assert.Equal(expectedPageHeader, header.TextContent.Trim());
+        }
+       
 
     }
 }

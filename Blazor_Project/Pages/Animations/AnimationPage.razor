@@ -21,12 +21,12 @@
 
     string currentAnimation = "";
 
-    string GetAnimationClass()
+    public string GetAnimationClass()
     {
         return currentAnimation;
     }
 
-    void ToggleAnimation(string animationName)
+    public void ToggleAnimation(string animationName)
     {
         currentAnimation = currentAnimation == animationName ? "" : animationName;
     }

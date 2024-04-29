@@ -21,8 +21,7 @@ namespace Tests
             _driver.Manage().Window.Maximize();
             _driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(30);
         }
-        
-        
+
         [Fact, Trait("Category", "FunctionalTest")]
         public void NavigateToPasswordChecker()
         {
@@ -293,11 +292,58 @@ namespace Tests
             var inputField = _driver.FindElement(By.CssSelector("input[type=\"number\"]"));
             Assert.True(inputField.Displayed);
         }
+
+        //animations
+        [Fact, Trait("Category", "FunctionalTest")]
+        public void NavigateToAnimationsPage()
+        {
+            _driver.Navigate().GoToUrl(_websiteURL + "animations");
+            var pageTitle = _driver.Title;
+            Assert.Equal("Blazor_Project", pageTitle);
+        }
+        [Fact, Trait("Category", "UITest")]
+        public void VerifyAttentionSeekerButtonIsPresent()
+        {
+            _driver.Navigate().GoToUrl(_websiteURL + "attention-seekers");
+            var button = _driver.FindElement(By.CssSelector(".animation-button"));
+            Assert.NotNull(button);
+        }
+        [Fact, Trait("Category", "UITest")]
+        public void VerifyAnimationToggle()
+        {
+            _driver.Navigate().GoToUrl(_websiteURL + "attention-seekers");
+            var targetDiv = _driver.FindElement(By.CssSelector(".target"));
+            var initialClass = targetDiv.GetAttribute("class");
+
+            var animationButton = _driver.FindElement(By.CssSelector(".animation-button"));
+            animationButton.Click();
+
+            var updatedClass = targetDiv.GetAttribute("class");
+            Assert.NotEqual(initialClass, updatedClass); 
+        }
+
+        [Fact, Trait("Category", "UITest")]
+        public void VerifyAnimationRemoval()
+        {
+            _driver.Navigate().GoToUrl(_websiteURL + "attention-seekers");
+            var targetDiv = _driver.FindElement(By.CssSelector(".target"));
+
+            var animationButton = _driver.FindElement(By.CssSelector(".animation-button"));
+            animationButton.Click();
+
+            var initialClass = targetDiv.GetAttribute("class");
+            animationButton.Click(); 
+
+            var updatedClass = targetDiv.GetAttribute("class");
+            Assert.NotEqual(initialClass, updatedClass);
+        }
+
         public void Dispose()
         {
             _driver.Dispose();
         }
        
 }
+   
 }
- 
+  
