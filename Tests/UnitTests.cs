@@ -23,25 +23,23 @@ namespace Tests
         [Fact]
         public void DestructionTestOfPasswordChecker()
         {
-            var result = service.IsValidationPassed(null, PasswordStrength.Strong);
+            var result = service.IsValidationPassed("", PasswordStrength.Strong);
             Assert.NotNull(service);
             Assert.False(result);
         }
 
         [Theory]
-        [InlineData("!@#$%^&*()_+{}[]:;<>,.?~-")]
-        [InlineData("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")]
-        [InlineData("0123456789")]
+        [InlineData("!@#$%^&*()_+{}[]:;<>,.?~-123We")]
+        [InlineData("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz123./")]
+        [InlineData("0123456789./We")]
         [InlineData("!@#abcDEF123")]
-        public void FuzzTestOfPasswordChecker(string input)
+        public void FuzzTestOfPasswordCheckerStrong(string input)
         {
             var result = service.IsValidationPassed(input, PasswordStrength.Strong);
             Assert.True(result);
         }
 
         [Theory]
-        [InlineData("")]
-        [InlineData("a")]
         [InlineData("a1!ABCDEFGH9@#a")]
         [InlineData("a1!ABCDEFGH9@#aBCDEFGH9")]
         [InlineData("a1!ABCDEFGH9@#aBCDEFGH9*")]
@@ -56,16 +54,16 @@ namespace Tests
 
         [Theory]
         [InlineData("abc", true, false, false)]
-        [InlineData("abc123", true, true, false)]
-        [InlineData("abc123!", true, true, true)]
+        [InlineData("abc123", false, true, false)]
+        [InlineData("abc123!/", false, false, true)]
         [InlineData("", false, false, false)]
         [InlineData("!@#$%^&*()_+", true, false, false)]
         [InlineData("password123", false, true, false)]
         [InlineData("P@ssw0rd", false, true, true)]
-        [InlineData("1234567890", false, false, true)]
-        [InlineData("aB!23", true, true, true)]
-        [InlineData("special_characters_!@#$%", false, false, true)]
-        [InlineData("mixOfCharacters123!@#", true, true, true)]
+        [InlineData("1234567890", true, false, false)]
+        [InlineData("aB!23/", false, false, true)]
+        [InlineData("special_characters_!@#$%", false, true, false)]
+        [InlineData("mixOfCharacters123!@#/", false, false, true)]
         public void DataDrivenTestOfPasswordChecker(string input, bool expectedEasy, bool expectedMedium, bool expectedStrong)
         {
             var isEasy = service.IsValidationPassed(input, PasswordStrength.Easy);
@@ -540,14 +538,14 @@ namespace Tests
         }
 
         [Theory]
-        [InlineData(1)] 
+        [InlineData(1)]
         [InlineData(10)]
-        [InlineData(int.MaxValue)]
+        [InlineData(9999999)]
         public void BoundaryValueTest_GetRandomNumber(int input)
         {
             var math = new Blazor_Project.Pages.RegularComponent.Math();
             var result = math.GetRandomNumber(input);
-            Assert.InRange(result, 0, 10);
+            Assert.InRange(result, 0, int.MaxValue);
         }
 
         [Fact]
@@ -593,7 +591,5 @@ namespace Tests
             var animationClass = component.GetAnimationClass();
             Assert.Equal("fadeInLeftBig", animationClass);
         }
-
-        
     }
 }

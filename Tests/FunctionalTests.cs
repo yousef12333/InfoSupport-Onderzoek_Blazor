@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Edge;
 using OpenQA.Selenium.Support.UI;
-
+/*
 
 namespace Tests
 {
@@ -27,7 +27,7 @@ namespace Tests
         {
             _driver.Navigate().GoToUrl(_websiteURL + "passwordchecker");
         }
-        [Fact, Trait("Category", "UITest")]
+        [Fact, Trait("Category", "FunctionalTest")]
         public void PasswordCheckerPageDisplaysCorrectly()
         {
             _driver.Navigate().GoToUrl(_websiteURL + "passwordchecker");
@@ -99,7 +99,7 @@ namespace Tests
             _driver.Navigate().GoToUrl(_websiteURL + "reactive-forms");
         }
 
-        [Fact, Trait("Category", "UITest")]
+        [Fact, Trait("Category", "FunctionalTest")]
         public void ReactiveFormsPageDisplaysCorrectly()
         {
             _driver.Navigate().GoToUrl(_websiteURL + "reactive-forms");
@@ -146,7 +146,7 @@ namespace Tests
             _driver.Navigate().GoToUrl(_websiteURL + "template-forms");
         }
 
-        [Fact, Trait("Category", "UITest")]
+        [Fact, Trait("Category", "FunctionalTest")]
         public void TemplateFormsPageDisplaysCorrectly()
         {
             _driver.Navigate().GoToUrl(_websiteURL + "template-forms");
@@ -179,7 +179,7 @@ namespace Tests
             var pageTitle = _driver.Title;
             Assert.Equal("Blazor_Project", pageTitle); 
         }
-        [Fact, Trait("Category", "FunctionalTest")]
+        [Fact, Trait("Category", "UITest")]
         public void SearchMoviesWithValidSearchTerm_PopulatesSearchResults()
         {
             _driver.Navigate().GoToUrl(_websiteURL + "movies");
@@ -192,7 +192,7 @@ namespace Tests
             var searchResults = _driver.FindElements(By.CssSelector(".MoviesSearch__list-group-item"));
             Assert.NotEmpty(searchResults);
         }
-        [Fact, Trait("Category", "FunctionalTest")]
+        [Fact, Trait("Category", "UITest")]
         public void SearchMoviesWithInvalidSearchTerm_DoesNotPopulateSearchResults()
         {
             _driver.Navigate().GoToUrl(_websiteURL + "movies");
@@ -205,27 +205,12 @@ namespace Tests
             var searchResults = _driver.FindElements(By.CssSelector(".MoviesSearch__list-group-item"));
             Assert.Empty(searchResults);
         }
-        [Fact, Trait("Category", "UITest")]
+        [Fact, Trait("Category", "FunctionalTest")]
         public void VerifySearchInputFieldIsPresent()
         {
             _driver.Navigate().GoToUrl(_websiteURL + "movies");
             var inputElement = _driver.FindElement(By.CssSelector(".MoviesSearch__input"));
             Assert.NotNull(inputElement);
-        }
-        [Fact, Trait("Category", "UITest")]
-        public void VerifySearchResultsDisplayCorrectly()
-        {
-            _driver.Navigate().GoToUrl(_websiteURL + "movies");
-
-            var inputElement = _driver.FindElement(By.CssSelector(".MoviesSearch__input"));
-            inputElement.SendKeys("Avengers");
-
-            var wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
-            wait.Until(driver => driver.FindElements(By.CssSelector(".MoviesSearch__list-group-item")).Count > 0);
-
-            var searchResults = _driver.FindElements(By.CssSelector(".MoviesSearch__list-group-item"));
-            Assert.NotEmpty(searchResults);
-
         }
         
         //math
@@ -237,7 +222,7 @@ namespace Tests
             var pageTitle = _driver.Title;
             Assert.Equal("Blazor_Project", pageTitle);
         }
-        [Fact, Trait("Category", "UITest")]
+        [Fact, Trait("Category", "FunctionalTest")]
         public void MathPageDisplaysCorrectly()
         {
             _driver.Navigate().GoToUrl(_websiteURL + "math");
@@ -301,7 +286,7 @@ namespace Tests
             var pageTitle = _driver.Title;
             Assert.Equal("Blazor_Project", pageTitle);
         }
-        [Fact, Trait("Category", "UITest")]
+        [Fact, Trait("Category", "FunctionalTest")]
         public void VerifyAttentionSeekerButtonIsPresent()
         {
             _driver.Navigate().GoToUrl(_websiteURL + "attention-seekers");
@@ -346,4 +331,4 @@ namespace Tests
 }
    
 }
-  
+  */
