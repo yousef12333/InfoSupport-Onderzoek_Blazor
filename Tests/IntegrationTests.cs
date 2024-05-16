@@ -15,6 +15,8 @@ using Moq;
 using System.Reactive.Linq;
 using Blazor_Project.Pages.Animations;
 using Microsoft.AspNetCore.Components;
+using Blazor_Project.Pages.Forms;
+using Blazor_Project.Pages.API___observables;
 
 namespace Tests
 {

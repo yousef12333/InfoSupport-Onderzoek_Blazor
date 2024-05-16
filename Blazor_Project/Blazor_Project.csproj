@@ -16,12 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Pages\API\" />
-    <Folder Include="Pages\Forms\" />
-    <Folder Include="Pages\Observables\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Include="wwwroot\css\images\calculator.png" />
     <None Include="wwwroot\css\images\chalkboard-background.jpg" />
     <None Include="wwwroot\css\images\image.png" />

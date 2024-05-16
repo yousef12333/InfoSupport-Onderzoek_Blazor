@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Components;
 using System.Reactive.Linq;
 using Moq;
 using Blazor_Project.Pages.Animations;
+using Blazor_Project.Pages.Forms;
+using Blazor_Project.Pages.API___observables;
 
 namespace Tests
 {
